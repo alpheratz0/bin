@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#
+# audio recorder for 
+# pulseaudio using ffmpeg
+#
+
+declare OPT_INTERACTIVE=false
+
+function main() {
+	parsed_args=$(getopt -o ih -l interactive,help -n 'recaudio' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0 ] ; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args" 
+
+	while :; do
+		case "$1" in
+			-h | --help ) show_help; exit 1 ;;
+			-i | --interactive ) OPT_INTERACTIVE=true; shift 1 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+
+	if ! $OPT_INTERACTIVE ; then
+		sound_source="$1"
+		[ -z "$sound_source" ] && die 'no source specified'
+		pactl list short sources | awk '{ print $2 }' | grep -qE "^$sound_source$" || die 'invalid source'
+		ffmpeg -f pulse -ac 2 -i "$sound_source" -ab 320k -acodec libmp3lame "$(date +%Y%m%d%H%M%S).mp3" 2>/dev/null>&2
+		exit 0
+	fi
+
+	sound_source_id=$(whiptail --notags --title "Select source" --menu "Options" 25 100 10 $(pactl list short sources | awk '{ print $1," ",$2 }') 3>&1 1>&2 2>&3)
+	
+	if [ $? -ne 0 ] ; then
+		exit 1
+	fi
+	
+	sound_source=$(pactl list short sources | awk "/^$sound_source_id\\s/{ print \$2 }")
+	ffmpeg -f pulse -ac 2 -i "$sound_source" -ab 320k -acodec libmp3lame "$(date +%Y%m%d%H%M%S).mp3" 2>/dev/null>&2
+}
+
+function die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+function show_help() {
+	echo Usage: recaudio [ -ih ] SOURCE
+	echo Options are:
+	echo '     -i | --interactive             select the audio source interactively'
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
