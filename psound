@@ -9,7 +9,7 @@ declare QUERY
 declare VOLUME
 
 function main() {
-	parsed_args=$(getopt -o mh -l mute,help -n 'psound' -- "$@")
+	parsed_args=$(getopt -o h -l help -n 'psound' -- "$@")
 	getopt_exit_code=$?
 	
 	[ $getopt_exit_code -ne 0 ] && exit 1
@@ -18,36 +18,21 @@ function main() {
 
 	while :; do
 		case "$1" in
-			-m | --mute ) VOLUME=0; shift 2 ;;
 			-h | --help ) show_help; exit 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
 	
-	if [ -z "$1" ] ; then
-		die 'you must specify a query'
-	else
-		QUERY="$1";
-	fi
+	QUERY="$1"
+	VOLUME="$2"
 
-	if [ ! -z "$2" ] ; then
-		if [ "$VOLUME" == "0" ] ; then
-			die 'you must not specify the volume parameter when the mute option is set'
-		else
-			VOLUME="$2"
-		fi
-	fi
-
-	if [ -z "$VOLUME" ] ; then
-		die 'you must specify the volume level'
-	fi
+	[ -z "$QUERY" ] && die 'you must specify a query'
+	[ -z "$VOLUME" ] && die 'you must the volume level'
 
 	match=$(pactl list sink-inputs | awk 'BEGIN { FS="\"" } /application\.name/{ print $2 }' | grep -iF "$QUERY" | head -n1)
 
-	if [ -z "$match" ] ; then
-		die "no matches"
-	fi
+	[ -z "$match" ] && die 'search query didnt match any application'
 
 	sinkid=$(pactl list sink-inputs | grep -F "application.name = \"$match\"" -B 30 | rev | grep '# tupnI kniS' | cut -d '#' -f1 | rev)
 	pactl set-sink-input-volume "$sinkid" "$VOLUME%"
@@ -59,9 +44,8 @@ function die() {
 }
 
 function show_help() {
-	echo Usage: psound [ -mh ] QUERY VOLUME
+	echo Usage: psound [ -h ] QUERY VOLUME
 	echo Options are:
-	echo '     -m | --mute                    mute the specified process'
 	echo '     -h | --help                    display this message and exit'
 }
 
