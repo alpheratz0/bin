@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#
+# select an area of the screen with text
+# and copies it to the clipboard
+#
+
+temp=$(mktemp -d)
+
+cd $temp
+scrot -s selection.png
+
+if ! test -f selection.png ; then
+    exit 1;
+fi
+
+tesseract selection.png result 2>/dev/null>&2
+cat result.txt | xclip -i -sel clipboard
+rm -rf "$temp"
+
+notify-send 'success' 'text copied to the clipboard'

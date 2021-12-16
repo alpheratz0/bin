@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# 
+# upload a file from the terminal to 0x0.st 
+# with the ability to encrypt it before with a passphrase
+#
+
+declare OPT_ENCRYPT=false
+declare FILE
+
+function main() {
+	parsed_args=$(getopt -o eh -l encrypt,help -n 'upload' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0  ] ; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args"
+
+	while :; do
+		case "$1" in
+			-h | --help ) show_help; exit 1 ;;
+			-e | --encrypt ) OPT_ENCRYPT=true; shift 1 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+
+	FILE="$1"
+
+	if [ -z "$FILE" ] ; then
+		die 'you must specify a file'
+	fi
+
+	if [ ! -f "$FILE" ] ; then
+		die 'the file does not exist'
+	fi
+
+	if ! $OPT_ENCRYPT ; then
+		
+		# 
+		# upload the file without
+		# encryption
+		#
+		
+		curl -s https://0x0.st -F"file=@$FILE"
+		exit 0
+	fi
+
+	#
+	# to decrypt it later with the passphrase
+	# do gpg -qo filename -d filename.gpg
+	#
+	
+	gpg -qc "$FILE" 2>/dev/null || exit 1
+	curl -s https://0x0.st -F"file=@$FILE.gpg"
+	rm "$FILE.gpg"
+}
+
+function die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+function show_help() {
+	echo Usage: upload [ -he ] FILENAME
+	echo Options are:
+	echo '     -e | --encrypt                 encrypt the file with a passphrase before uplaod'
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"

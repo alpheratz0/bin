@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#
+# download youtube video thumbnail
+# in the highest quality
+#
+
+if [ -z "$1" ] ; then
+    echo 'error: no video id specified' >&2
+	exit 1
+fi
+
+video_id="$1"
+curl -s https://img.youtube.com/vi/$video_id/maxresdefault.jpg -o thumb_$video_id.jpg

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# 
+# display the signals a process is
+# listening to in a human readable format
+#
+
+pid=$1
+isnum='^[0-9]+$'
+
+if [[ ! $pid =~ $isnum ]] ; then
+	echo 'error: process id must be a number' >&2
+	exit 1
+fi
+
+if [ ! -f /proc/$pid/status ] ; then
+	echo 'error: process with the specified id not found' >&2
+	exit 1
+fi
+
+hexsig=$(cat /proc/$pid/status | grep 'SigCgt' | awk '{ print $2 }' | tr '[a-z]' '[A-Z]')
+binsig=($(echo "obase=2;ibase=16;$hexsig" | bc | rev | grep -o .))
+
+if [ $hexsig == '0000000000000000' ] ; then
+	echo NONE
+	exit 0
+fi
+
+signal=1
+for bit in ${binsig[@]} ; do 
+	[ $bit -eq 1 ] && printf "%s " "$(kill -l $signal)"
+	signal=$((signal+1))
+done
