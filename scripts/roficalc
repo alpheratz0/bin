@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# run rofi calc script and
+# copy its output to the clipboard
+#
+
+postcommand='echo -n {result} | xclip -i -sel clipboard'
+rofi -show calc -modi calc -no-show-match -no-sort -terse -calc-command "$postcommand" -no-history -hint-welcome '' -hint-result ''
