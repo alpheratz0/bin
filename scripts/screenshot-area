@@ -10,7 +10,7 @@ OUTDIR="$HOME/.screenshots"
 NOTIFICATION_CMD="notify-send 'area screenshot taken' 'file name: \$f'"
 
 if ! test -d "$OUTDIR" ; then
-    mkdir "$OUTDIR";
+	mkdir "$OUTDIR";
 fi
 
 scrot -zs "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD"

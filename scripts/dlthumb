@@ -6,7 +6,7 @@
 #
 
 if [ -z "$1" ] ; then
-    echo 'error: no video id specified' >&2
+	echo 'error: no video id specified' >&2
 	exit 1
 fi
 
