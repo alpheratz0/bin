@@ -1,0 +1,16 @@
+#!/bin/sh
+
+#
+# take a screenshot of the whole screen
+# and send a notification using dunst
+#
+
+FORMAT="%Y%m%d%H%M%S.png"
+OUTDIR="$HOME/.screenshots"
+NOTIFICATION_CMD="notify-send 'screenshot taken' 'file name: \$f'"
+
+if ! test -d "$OUTDIR" ; then
+    mkdir "$OUTDIR";
+fi
+
+scrot -z "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD"
