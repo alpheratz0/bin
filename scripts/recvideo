@@ -87,7 +87,7 @@ function die() {
 }
 
 function show_help() {
-	echo Usage: recvideo [ -sh ] [ -d DURATION ] [ -w WAITSECONDS ]
+	echo Usage: recvideo [ -gsh ] [ -d DURATION ] [ -w WAITSECONDS ]
 	echo Options are:
 	echo '     -g | --gif                     convert the video gif'
 	echo '     -s | --selection               select the area of the screen to record'
