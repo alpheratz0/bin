@@ -6,7 +6,7 @@
 #
 
 declare FFMPEG_SIZPOS_FLAGS='-s 1920x1080 -i :0.0'
-declare FFMPEG_DURATION_FLAGS=''
+declare FFMPEG_DURATION_FLAG=''
 
 declare OPT_DURATION=false
 declare OPT_WAIT=false
@@ -45,7 +45,7 @@ function main() {
 	fi
 
 	if $OPT_DURATION ; then
-		FFMPEG_DURATION_FLAGS="-t $DURATION"
+		FFMPEG_DURATION_FLAG="-t $DURATION"
 	fi
 
 	if $OPT_SELECTION ; then
@@ -55,7 +55,7 @@ function main() {
 	ffmpeg -framerate 60 \
 		   -f x11grab \
 		   $FFMPEG_SIZPOS_FLAGS \
-		   $FFMPEG_DURATION_FLAGS \
+		   $FFMPEG_DURATION_FLAG \
 		   -c:v libx264 \
 		   -crf 0 \
 		   -preset ultrafast \
