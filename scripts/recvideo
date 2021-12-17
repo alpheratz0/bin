@@ -1,0 +1,75 @@
+#!/bin/bash
+
+#
+# record the full screen or 
+# the selected area
+#
+
+declare FFMPEG_SIZPOS_FLAGS=''
+declare FFMPEG_DURATION_FLAGS=''
+
+declare OPT_DURATION=false
+declare OPT_WAIT=false
+declare OPT_SELECTION=false
+declare DURATION=1
+declare WAIT=1
+
+function main() {
+	parsed_args=$(getopt -o d:w:sh -l duration:,wait:,selection,help -n 'recvideo' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0 ] ; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args" 
+
+	while :; do
+		case "$1" in
+			-d | --duration ) OPT_DURATION=true; DURATION="$2"; shift 2 ;;
+			-w | --wait ) OPT_WAIT=true; WAIT="$2"; shift 2 ;;
+			-s | --selection ) OPT_SELECTION=true; shift ;;
+			-h | --help ) show_help; exit 1 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+
+	[ "$WAIT" -eq "$WAIT" ] 2>/dev/null || die 'wait value must be a number'
+	[ "$DURATION" -eq "$DURATION" ] 2>/dev/null || die 'duration value must be a number'
+	[ "$WAIT" -gt 0 ] || die 'wait value must be a positive number'
+	[ "$DURATION" -gt 0 ] || die 'duration value must be a positive number'
+
+	if $OPT_WAIT ; then
+		sleep "$WAIT"
+	fi
+
+	if $OPT_DURATION ; then
+		FFMPEG_DURATION_FLAGS="-t $DURATION"
+	fi
+
+	if $OPT_SELECTION ; then
+		FFMPEG_SIZPOS_FLAGS=$(slop --format="-s %wx%h -i :0.0+%x,%y")
+		ffmpeg -framerate 60 -f x11grab $FFMPEG_SIZPOS_FLAGS $FFMPEG_DURATION_FLAGS -c:v libx264 -crf 0 -preset ultrafast -y "$(date +%Y%m%d%H%M%S).mkv" 2>/dev/null>&2
+		exit 0
+	fi
+
+	FFMPEG_SIZPOS_FLAGS='-s 1920x1080 -i :0.0'
+	ffmpeg -framerate 60 -f x11grab $FFMPEG_SIZPOS_FLAGS $FFMPEG_DURATION_FLAGS -c:v libx264 -crf 0 -preset ultrafast -y "$(date +%Y%m%d%H%M%S).mkv" 2>/dev/null>&2
+}
+
+function die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+function show_help() {
+	echo Usage: recvideo [ -sh ] [ -d DURATION ] [ -w WAITSECONDS ]
+	echo Options are:
+	echo '     -s | --selection               select the area of the screen to record'
+	echo '     -d | --duration                specify the length of the clip'
+	echo '     -w | --wait                    wait X seconds before recording'
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
