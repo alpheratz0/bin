@@ -14,10 +14,10 @@ declare OPT_SELECTION=false
 declare OPT_GIF=false
 declare DURATION=1
 declare WAIT=1
-declare GIF_QUALITY='high'
+declare FPS=60
 
 function main() {
-	parsed_args=$(getopt -o gGd:w:sh -l gif,gif-lq,duration:,wait:,selection,help -n 'recvideo' -- "$@")
+	parsed_args=$(getopt -o gd:w:sh -l gif,duration:,wait:,selection,help -n 'recvideo' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ] ; then
@@ -28,8 +28,7 @@ function main() {
 
 	while :; do
 		case "$1" in
-			-g | --gif ) OPT_GIF=true; GIF_QUALITY='high'; shift ;;
-			-G | --gif-lq ) OPT_GIF=true; GIF_QUALITY='low'; shift ;;
+			-g | --gif ) OPT_GIF=true; FPS=20; shift ;;
 			-d | --duration ) OPT_DURATION=true; DURATION="$2"; shift 2 ;;
 			-w | --wait ) OPT_WAIT=true; WAIT="$2"; shift 2 ;;
 			-s | --selection ) OPT_SELECTION=true; shift ;;
@@ -58,7 +57,7 @@ function main() {
 
 	filename="$(date +%Y%m%d%H%M%S).mkv"
 
-	ffmpeg -framerate 60 \
+	ffmpeg -framerate $FPS \
 		   -f x11grab \
 		   $FFMPEG_SIZPOS_FLAGS \
 		   $FFMPEG_DURATION_FLAG \
@@ -72,17 +71,10 @@ function main() {
 		tempwd=$(mktemp -d)
 		mv "$filename" $tempwd
 		cd $tempwd
-
-		if [ $GIF_QUALITY == 'high' ] ; then
-			ffmpeg -i "$filename" frame%04d.png 2>/dev/null>&2
-			gifski -q -o "$gif_filename" frame*.png
-		else
-			ffmpeg -i "$filename" \
-				   -vf "fps=10,scale=-1:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
-				   -loop 0 \
-				   "$gif_filename" 2>/dev/null>&2
-		fi
-		
+		ffmpeg -i "$filename" \
+			   -vf "fps=20,scale=-1:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
+			   -loop 0 \
+			   "$gif_filename" 2>/dev/null>&2
 		cd - >/dev/null
 		mv "$tempwd/$gif_filename" .
 		rm -rf "$tempwd"
@@ -97,8 +89,7 @@ function die() {
 function show_help() {
 	echo Usage: recvideo [ -sh ] [ -d DURATION ] [ -w WAITSECONDS ]
 	echo Options are:
-	echo '     -g | --gif                     convert the video to a high quality gif'
-	echo '     -G | --gif-lq                  convert the video to a low quality gif'
+	echo '     -g | --gif                     convert the video gif'
 	echo '     -s | --selection               select the area of the screen to record'
 	echo '     -d | --duration                specify the length of the clip'
 	echo '     -w | --wait                    wait X seconds before recording'
