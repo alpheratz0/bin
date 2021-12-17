@@ -15,15 +15,7 @@ function main() {
 	
 	[ -z "$data" ] && die 'file has no encoded date field in metadata'
 
-	YYYY=$(echo "$data" | cut -d ':' -f 2 | cut -d '-' -f 1 | cut -d ' ' -f 3)
-	MM=$(echo "$data" | cut -d ':' -f 2 | cut -d '-' -f 2)
-	DD=$(echo "$data" | cut -d ':' -f 2 | cut -d '-' -f 3 | cut -d ' ' -f 1)
-
-	hh=$(echo "$data" | cut -d ':' -f 2 | cut -d ' ' -f 4)
-	mm=$(echo "$data" | cut -d ':' -f 3)
-	ss=$(echo "$data" | cut -d ':' -f 4)
-
-	echo $YYYY$MM$DD$hh$mm$ss
+	echo $data | awk 'BEGIN { FS="[- :]" } { print $6$7$8$9$10$11 }'
 }
 
 function die() {
