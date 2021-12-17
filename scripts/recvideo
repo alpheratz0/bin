@@ -49,7 +49,7 @@ function main() {
 	fi
 
 	if $OPT_SELECTION ; then
-		FFMPEG_SIZPOS_FLAGS=$(slop --format="-s %wx%h -i :0.0+%x,%y")
+		FFMPEG_SIZPOS_FLAGS=$(slop --quiet --format="-s %wx%h -i :0.0+%x,%y") || exit 1
 		ffmpeg -framerate 60 \
 			   -f x11grab \
 			   $FFMPEG_SIZPOS_FLAGS \
