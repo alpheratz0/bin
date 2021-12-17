@@ -50,12 +50,26 @@ function main() {
 
 	if $OPT_SELECTION ; then
 		FFMPEG_SIZPOS_FLAGS=$(slop --format="-s %wx%h -i :0.0+%x,%y")
-		ffmpeg -framerate 60 -f x11grab $FFMPEG_SIZPOS_FLAGS $FFMPEG_DURATION_FLAGS -c:v libx264 -crf 0 -preset ultrafast -y "$(date +%Y%m%d%H%M%S).mkv" 2>/dev/null>&2
+		ffmpeg -framerate 60 \
+			   -f x11grab \
+			   $FFMPEG_SIZPOS_FLAGS \
+			   $FFMPEG_DURATION_FLAGS \
+			   -c:v libx264 \
+			   -crf 0 \
+			   -preset ultrafast \
+			   -y "$(date +%Y%m%d%H%M%S).mkv" 2>/dev/null>&2
 		exit 0
 	fi
 
 	FFMPEG_SIZPOS_FLAGS='-s 1920x1080 -i :0.0'
-	ffmpeg -framerate 60 -f x11grab $FFMPEG_SIZPOS_FLAGS $FFMPEG_DURATION_FLAGS -c:v libx264 -crf 0 -preset ultrafast -y "$(date +%Y%m%d%H%M%S).mkv" 2>/dev/null>&2
+	ffmpeg -framerate 60 \
+		   -f x11grab \
+		   $FFMPEG_SIZPOS_FLAGS \
+		   $FFMPEG_DURATION_FLAGS \
+		   -c:v libx264 \
+		   -crf 0 \
+		   -preset ultrafast \
+		   -y "$(date +%Y%m%d%H%M%S).mkv" 2>/dev/null>&2
 }
 
 function die() {
