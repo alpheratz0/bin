@@ -1,0 +1,34 @@
+#!/bin/bash
+
+#
+# get the encoded date
+# of a video
+#
+
+function main() {
+	filename="$1"
+	
+	[ -z "$filename" ] && die 'filename cannot be empty'
+	[ ! -f "$filename" ] && die 'file doesnt exist'
+	
+	data=$(mediainfo "$filename" | grep 'Encoded date' | head -n1)
+	
+	[ -z "$data" ] && die 'file has no encoded date field in metadata'
+
+	YYYY=$(echo "$data" | cut -d ':' -f 2 | cut -d '-' -f 1 | cut -d ' ' -f 3)
+	MM=$(echo "$data" | cut -d ':' -f 2 | cut -d '-' -f 2)
+	DD=$(echo "$data" | cut -d ':' -f 2 | cut -d '-' -f 3 | cut -d ' ' -f 1)
+
+	hh=$(echo "$data" | cut -d ':' -f 2 | cut -d ' ' -f 4)
+	mm=$(echo "$data" | cut -d ':' -f 3)
+	ss=$(echo "$data" | cut -d ':' -f 4)
+
+	echo $YYYY$MM$DD$hh$mm$ss
+}
+
+function die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+main "$@"
