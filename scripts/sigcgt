@@ -30,7 +30,7 @@ function main() {
 	[[ $pid =~ $isnum ]] || die 'process id must be a number'
 	[ -f /proc/$pid/status ] || die 'process not found'
 
-	hexsig=$(cat /proc/$pid/status | grep 'SigCgt' | awk '{ print $2 }' | tr '[a-z]' '[A-Z]')
+	hexsig=$(awk '/^SigCgt/ { print toupper($2) }' /proc/$pid/status)
 	binsig=($(echo "obase=2;ibase=16;$hexsig" | bc | rev | grep -o .))
 	printnl=false
 	signal=1
