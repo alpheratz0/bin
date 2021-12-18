@@ -5,10 +5,41 @@
 # in the highest quality
 #
 
-if [ -z "$1" ] ; then
-	echo 'error: no video id specified' >&2
-	exit 1
-fi
+function main() {
+	parsed_args=$(getopt -o h -l help -n 'dlthumb' -- "$@")
+	getopt_exit_code=$?
 
-video_id="$1"
-curl -s https://img.youtube.com/vi/$video_id/maxresdefault.jpg -o thumb_$video_id.jpg
+	if [ $getopt_exit_code -ne 0 ] ; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args" 
+
+	while :; do
+		case "$1" in
+			-h | --help ) show_help; exit 1 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+
+	video_id="$1"
+
+	[ -z "$video_id" ] && die 'no video id specified'
+
+	curl -s https://img.youtube.com/vi/$video_id/maxresdefault.jpg \
+		 -o thumb_$video_id.jpg
+}
+
+function die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+function show_help() {
+	echo Usage: dlthumb [ -h ] VIDEOID
+	echo Options are:
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
