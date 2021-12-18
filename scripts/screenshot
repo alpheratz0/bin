@@ -1,16 +1,57 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # take a screenshot of the whole screen
-# and send a notification using dunst
+# or the selected area and send 
+# a notification using dunst
 #
 
-FORMAT="%Y%m%d%H%M%S.png"
-OUTDIR="$HOME/.screenshots"
-NOTIFICATION_CMD="notify-send 'screenshot taken' 'file name: \$f'"
+declare OPT_AREA=false
+declare FORMAT="%Y%m%d%H%M%S.png"
+declare OUTDIR="$HOME/.screenshots"
 
-if ! test -d "$OUTDIR" ; then
-	mkdir "$OUTDIR";
-fi
+function main() {
+	parsed_args=$(getopt -o ah -l area,help -n 'screenshot' -- "$@")
+	getopt_exit_code=$?
 
-scrot -z "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD"
+	if [ $getopt_exit_code -ne 0 ] ; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args" 
+
+	while :; do
+		case "$1" in
+			-a | --area ) OPT_AREA=true; shift ;;
+			-h | --help ) show_help; exit 1 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+
+	[ -d "$OUTDIR" ] || mkdir "$OUTDIR"
+
+	if $OPT_AREA ; then
+		NOTIFICATION_CMD="notify-send 'area screenshot taken' 'file name: \$f'"
+		scrot -zs "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD" 2>/dev/null || 
+			die 'selection cancelled'
+		exit 0
+	fi
+
+	NOTIFICATION_CMD="notify-send 'screenshot taken' 'file name: \$f'"
+	scrot -z "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD"	
+}
+
+function die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+function show_help() {
+	echo Usage: screenshot [ -ah ]
+	echo Options are:
+	echo '     -a | --area                    take an area screenshot instead of the full screen'
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
