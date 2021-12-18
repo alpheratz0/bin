@@ -5,29 +5,53 @@
 # listening to in a human readable format
 #
 
-pid=$1
-isnum='^[0-9]+$'
+function main() {
+	parsed_args=$(getopt -o h -l help -n 'sigcgt' -- "$@")
+	getopt_exit_code=$?
 
-if [[ ! $pid =~ $isnum ]] ; then
-	echo 'error: process id must be a number' >&2
+	if [ $getopt_exit_code -ne 0 ] ; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args" 
+
+	while :; do
+		case "$1" in
+			-h | --help ) show_help; exit 1 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+	
+	pid=$1
+	isnum='^[0-9]+$'
+
+	[ -z "$pid" ] && die 'process id must be specified'
+	[[ $pid =~ $isnum ]] || die 'process id must be a number'
+	[ -f /proc/$pid/status ] || die 'process not found'
+
+	hexsig=$(cat /proc/$pid/status | grep 'SigCgt' | awk '{ print $2 }' | tr '[a-z]' '[A-Z]')
+	binsig=($(echo "obase=2;ibase=16;$hexsig" | bc | rev | grep -o .))
+	printnl=false
+	signal=1
+	
+	for bit in ${binsig[@]} ; do 
+		[ $bit -eq 1 ] && printf "%s " "$(kill -l $signal)" && printnl=true
+		signal=$((signal+1))
+	done
+
+	$printnl && printf "\n"
+}
+
+function die() {
+	printf "error: %s\n" "$@" >&2
 	exit 1
-fi
+}
 
-if [ ! -f /proc/$pid/status ] ; then
-	echo 'error: process with the specified id not found' >&2
-	exit 1
-fi
+function show_help() {
+	echo Usage: sigcgt [ -h ] PID
+	echo Options are:
+	echo '     -h | --help                    display this message and exit'
+}
 
-hexsig=$(cat /proc/$pid/status | grep 'SigCgt' | awk '{ print $2 }' | tr '[a-z]' '[A-Z]')
-binsig=($(echo "obase=2;ibase=16;$hexsig" | bc | rev | grep -o .))
-
-if [ $hexsig == '0000000000000000' ] ; then
-	echo NONE
-	exit 0
-fi
-
-signal=1
-for bit in ${binsig[@]} ; do 
-	[ $bit -eq 1 ] && printf "%s " "$(kill -l $signal)"
-	signal=$((signal+1))
-done
+main "$@"
