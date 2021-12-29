@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # select an area of the screen with text
 # and copies it to the clipboard
 #
 
-function main() {
+main() {
 	parsed_args=$(getopt -o h -l help -n 'sltx' -- "$@")
 	getopt_exit_code=$?
 
@@ -25,24 +25,24 @@ function main() {
 
 	temp=$(mktemp -d)
 
-	cd $temp
+	cd "$temp" || exit 1
 	scrot -s selection.png
 
 	[ -f selection.png ] || die 'selection cancelled'
 
 	tesseract selection.png result 2>/dev/null>&2
-	cat result.txt | xclip -i -sel clipboard
+	xclip -i -sel clipboard < result.txt
 	rm -rf "$temp"
 
 	notify-send 'success' 'text copied to the clipboard'
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: sltx [ -h ]
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
