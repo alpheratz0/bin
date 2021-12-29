@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # audio recorder for 
 # pulseaudio using ffmpeg
 #
 
-declare OPT_INTERACTIVE=false
+OPT_INTERACTIVE=false
 
-function main() {
+main() {
 	parsed_args=$(getopt -o ih -l interactive,help -n 'recaudio' -- "$@")
 	getopt_exit_code=$?
 
@@ -44,12 +44,12 @@ function main() {
 	ffmpeg -f pulse -ac 2 -i "$sound_source" -ab 320k -acodec libmp3lame "$(date +%Y%m%d%H%M%S).mp3" 2>/dev/null>&2
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: recaudio [ -ih ] SOURCE
 	echo Options are:
 	echo '     -i | --interactive             select the audio source interactively'
