@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-function main() {
+main() {
 	parsed_args=$(getopt -o h -l help -n 'previewmd' -- "$@")
 	getopt_exit_code=$?
 
@@ -26,12 +26,12 @@ function main() {
 
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: previewmd [ -h ] FILE
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
