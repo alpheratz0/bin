@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 # 
 # display the signals a process is
 # listening to in a human readable format
 #
 
-function main() {
+main() {
 	parsed_args=$(getopt -o h -l help -n 'sigcgt' -- "$@")
 	getopt_exit_code=$?
 
@@ -24,31 +24,34 @@ function main() {
 	done
 	
 	pid=$1
-	isnum='^[0-9]+$'
 
 	[ -z "$pid" ] && die 'process id must be specified'
-	[[ $pid =~ $isnum ]] || die 'process id must be a number'
-	[ -f /proc/$pid/status ] || die 'process not found'
+	[ "$pid" -eq "$pid" ] 2>/dev/null || die 'process id must be a number'
+	[ -f /proc/"$pid"/status ] || die 'process not found'
 
-	hexsig=$(awk '/^SigCgt/ { print toupper($2) }' /proc/$pid/status)
-	binsig=($(echo "obase=2;ibase=16;$hexsig" | bc | rev | grep -o .))
+	hexsig=$(awk '/^SigCgt/ { print toupper($2) }' /proc/"$pid"/status)
+	binsig="$(echo "obase=2;ibase=16;$hexsig" | bc | rev | grep -o .)"
 	printnl=false
 	signal=1
 	
-	for bit in ${binsig[@]} ; do 
-		[ $bit -eq 1 ] && printf "%s " "$(kill -l $signal)" && printnl=true
+	for bit in $binsig ; do 
+		[ "$bit" -eq 1 ] && 
+			[ "$signal" -ne 32 ] && 
+			[ "$signal" -ne 33 ] && 
+			printf "%s " "$(kill -l $signal)" && printnl=true
+		
 		signal=$((signal+1))
 	done
 
 	$printnl && printf "\n"
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: sigcgt [ -h ] PID
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
