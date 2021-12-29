@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 
 # 
 # upload a file from the terminal to 0x0.st 
 # with the ability to encrypt it before with a passphrase
 #
 
-declare OPT_ENCRYPT=false
-declare FILE
+OPT_ENCRYPT=false
+FILE=
 
-function main() {
+main() {
 	parsed_args=$(getopt -o eh -l encrypt,help -n 'upload' -- "$@")
 	getopt_exit_code=$?
 
@@ -58,12 +58,12 @@ function main() {
 	rm "$FILE.gpg"
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: upload [ -he ] FILENAME
 	echo Options are:
 	echo '     -e | --encrypt                 encrypt the file with a passphrase before uplaod'
