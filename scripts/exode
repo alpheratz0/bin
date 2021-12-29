@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # print the exit code of 
 # the specified command
 #
 
-$@ 2>/dev/null >&2
+"$@" 2>/dev/null >&2
 echo $?
