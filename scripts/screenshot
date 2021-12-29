@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # take a screenshot of the whole screen
@@ -6,11 +6,11 @@
 # a notification using dunst
 #
 
-declare OPT_AREA=false
-declare FORMAT="%Y%m%d%H%M%S.png"
-declare OUTDIR="$HOME/.screenshots"
+OPT_AREA=false
+FORMAT="%Y%m%d%H%M%S.png"
+OUTDIR="$HOME/.screenshots"
 
-function main() {
+main() {
 	parsed_args=$(getopt -o ah -l area,help -n 'screenshot' -- "$@")
 	getopt_exit_code=$?
 
@@ -42,12 +42,12 @@ function main() {
 	scrot -z "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD"	
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: screenshot [ -ah ]
 	echo Options are:
 	echo '     -a | --area                    take an area screenshot instead of the full screen'
