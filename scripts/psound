@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 
 # 
 # change the volume of the specified
 # application
 #
 
-declare QUERY
-declare VOLUME
+QUERY
+VOLUME
 
-function main() {
+main() {
 	parsed_args=$(getopt -o h -l help -n 'psound' -- "$@")
 	getopt_exit_code=$?
 	
@@ -38,12 +38,12 @@ function main() {
 	pactl set-sink-input-volume "$sinkid" "$VOLUME%"
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: psound [ -h ] QUERY VOLUME
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
