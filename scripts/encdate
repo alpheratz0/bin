@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # get the encoded date
 # of a video
 #
 
-function main() {
+main() {
 	parsed_args=$(getopt -o h -l help -n 'encdate' -- "$@")
 	getopt_exit_code=$?
 
@@ -32,15 +32,15 @@ function main() {
 	
 	[ -z "$data" ] && die 'file has no encoded date field in metadata'
 
-	echo $data | awk 'BEGIN { FS="[- :]" } { print $6$7$8$9$10$11 }'
+	echo "$data" | awk 'BEGIN { FS="[- :]" } { print $6$7$8$9$10$11 }'
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: encdate [ -h ] FILENAME
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
