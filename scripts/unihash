@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # convert all files in the specified directory
@@ -6,11 +6,11 @@
 # ones to the repeated directory
 #
 
-declare OPT_PROMPT=true
-declare OPT_QUIET=false
-declare DIRECTORY='.'
+OPT_PROMPT=true
+OPT_QUIET=false
+DIRECTORY='.'
 
-function main() {
+main() {
 	parsed_args=$(getopt -o Pqh -l no-prompt,quiet,help -n 'unihash' -- "$@")
 	getopt_exit_code=$?
 
@@ -34,19 +34,19 @@ function main() {
 	[ -d "$DIRECTORY" ] || die 'target directory doesnt exist'
 
 	if $OPT_PROMPT ; then
-		num=$RANDOM
-		printf "please enter $num to confirm ($(basename $(realpath $DIRECTORY))): "
-		read guess
+		num="$(head -c2 /dev/random | od -An -t u2 - | tr -d ' ')"
+		printf "please enter %s to confirm (%s): " "$num" "$(basename "$(realpath "$DIRECTORY")")"
+		read -r guess
 		[ "$num" != "$guess" ] && die 'numbers didnt match'
 	fi
 
-	cd "$DIRECTORY"
+	cd "$DIRECTORY" || exit 1
 
 	mkdir repeated 2>/dev/null
 
 	files=$(find . -maxdepth 1 -type f)
 
-	for f in ${files[@]} ; do
+	for f in $files ; do
 		file_name=$(basename "$f")
 		file_hash=$(md5sum "$f" | awk '{ print $1 }')
 		basename "$f" | grep -Fq '.' && 
@@ -55,27 +55,27 @@ function main() {
 		
 		file_output="$file_hash$extension"
 		
-		[ "$file_name" == "$file_output" ] && continue
+		[ "$file_name" = "$file_output" ] && continue
 		
 		if [ -f "$file_output" ] ; then
 			if [ ! -f "repeated/$file_output" ] ; then
 				mv -n "$f" "repeated/$file_output"
-				$OPT_QUIET || echo -e "$f\nrepeated/$file_output" >&2
+				$OPT_QUIET || printf "%s\nrepeated/%s\n" "$f" "$file_output" >&2
 			fi
 			continue
 		fi
 
 		mv -n "$f" "$file_output"
-		$OPT_QUIET || echo -e "$f\n$file_output" >&2
+		$OPT_QUIET || printf "%s\n%s\n" "$f" "$file_output" >&2
 	done
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: unihash [ -Pqh ] DIRECTORY
 	echo Options are:
 	echo '     -P | --no-prompt               disable the prompt of a random number'
