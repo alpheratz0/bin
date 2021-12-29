@@ -1,15 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # mount and umount 
 # my backup partition
 #
 
-declare OPT_MOUNT=false
-declare OPT_UMOUNT=false
-declare UUID='f69c82e2-0a9e-4197-ad67-13aa6450ad03'
+OPT_MOUNT=false
+OPT_UMOUNT=false
+UUID='f69c82e2-0a9e-4197-ad67-13aa6450ad03'
 
-function main() {
+main() {
 	parsed_args=$(getopt -o muh -l mount,umount,help -n 'backupfs' -- "$@")
 	getopt_exit_code=$?
 
@@ -46,12 +46,12 @@ function main() {
 	sudo umount /back 2>/dev/null || die 'cannot umount partition because the disk is busy'
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: backupfs [ -muh ]
 	echo Options are:
 	echo '     -m | --mount                   mount the backup partition'
