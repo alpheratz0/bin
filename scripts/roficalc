@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # run rofi calc script and
 # copy its output to the clipboard
 #
 
-function main() {
+main() {
 	parsed_args=$(getopt -o h -l help -n 'roficalc' -- "$@")
 	getopt_exit_code=$?
 
@@ -34,7 +34,7 @@ function main() {
 		 -hint-result ''
 }
 
-function show_help() {
+show_help() {
 	echo Usage: roficalc [ -h ]
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
