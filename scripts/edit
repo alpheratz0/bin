@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # edit known config
 # files and scripts
 #
 
-function main() {
+main() {
 	parsed_args=$(getopt -o h -l help -n 'edit' -- "$@")
 	getopt_exit_code=$?
 
@@ -42,16 +42,15 @@ function main() {
 		picom ) vim ~/.config/picom/picom.conf ;;
 		rofi ) vim ~/.config/rofi/theme.rasi ;;
 		dunst ) vim ~/.config/dunst/dunstrc ;;
-		self ) vim "$BASH_SOURCE" ;;
 	esac
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: edit [ -h ] TARGET
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
