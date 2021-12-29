@@ -1,22 +1,22 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # record the full screen or 
 # the selected area
 #
 
-declare FFMPEG_SIZPOS_FLAGS='-s 1920x1080 -i :0.0'
-declare FFMPEG_DURATION_FLAG=''
+FFMPEG_SIZPOS_FLAGS='-s 1920x1080 -i :0.0'
+FFMPEG_DURATION_FLAG=''
 
-declare OPT_DURATION=false
-declare OPT_WAIT=false
-declare OPT_SELECTION=false
-declare OPT_GIF=false
-declare DURATION=1
-declare WAIT=1
-declare FPS=60
+OPT_DURATION=false
+OPT_WAIT=false
+OPT_SELECTION=false
+OPT_GIF=false
+DURATION=1
+WAIT=1
+FPS=60
 
-function main() {
+main() {
 	parsed_args=$(getopt -o gd:w:sh -l gif,duration:,wait:,selection,help -n 'recvideo' -- "$@")
 	getopt_exit_code=$?
 
@@ -69,24 +69,24 @@ function main() {
 	if $OPT_GIF ; then
 		gif_filename="$(basename "$filename" .mkv).gif"
 		tempwd=$(mktemp -d)
-		mv "$filename" $tempwd
-		cd $tempwd
+		mv "$filename" "$tempwd"
+		cd "$tempwd" || exit 1
 		ffmpeg -i "$filename" \
 			   -vf "fps=20,scale=-1:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
 			   -loop 0 \
 			   "$gif_filename" 2>/dev/null>&2
-		cd - >/dev/null
+		cd - >/dev/null || exit 1
 		mv "$tempwd/$gif_filename" .
 		rm -rf "$tempwd"
 	fi
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: recvideo [ -gsh ] [ -d DURATION ] [ -w WAITSECONDS ]
 	echo Options are:
 	echo '     -g | --gif                     convert the video to gif'
