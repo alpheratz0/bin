@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # download youtube video thumbnail
 # in the highest quality
 #
 
-function main() {
+main() {
 	parsed_args=$(getopt -o h -l help -n 'dlthumb' -- "$@")
 	getopt_exit_code=$?
 
@@ -27,16 +27,16 @@ function main() {
 
 	[ -z "$video_id" ] && die 'no video id specified'
 
-	curl -s https://img.youtube.com/vi/$video_id/maxresdefault.jpg \
-		 -o thumb_$video_id.jpg
+	curl -s https://img.youtube.com/vi/"$video_id"/maxresdefault.jpg \
+		 -o thumb_"$video_id".jpg
 }
 
-function die() {
+die() {
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-function show_help() {
+show_help() {
 	echo Usage: dlthumb [ -h ] VIDEOID
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
