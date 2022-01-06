@@ -32,9 +32,9 @@ main() {
 	[ -d "$OUTDIR" ] || mkdir "$OUTDIR"
 
 	if $OPT_AREA ; then
+		AREA=$(slop --quiet --format="%x,%y,%w,%h") || die 'selection cancelled'
 		NOTIFICATION_CMD="notify-send 'area screenshot taken' 'file name: \$f'"
-		scrot -zs "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD" 2>/dev/null || 
-			die 'selection cancelled'
+		scrot -d 1 -z "$FORMAT" -a $AREA -e "mv \$f $OUTDIR && $NOTIFICATION_CMD" 2>/dev/null
 		exit 0
 	fi
 
