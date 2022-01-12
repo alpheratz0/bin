@@ -46,28 +46,30 @@ main() {
 
 	files=$(find . -maxdepth 1 -type f)
 
-	for f in $files ; do
-		file_name=$(basename "$f")
-		file_hash=$(md5sum "$f" | awk '{ print $1 }')
-		basename "$f" | grep -Fq '.' && 
-			extension=".$(basename "$f" | awk -F. '{ print $NF }')" ||
-			extension=''
+	find . -maxdepth 1 -type f | { 
+		while read f; do
+			file_name=$(basename "$f")
+			file_hash=$(md5sum "$f" | awk '{ print $1 }')
+			basename "$f" | grep -Fq '.' && 
+				extension=".$(basename "$f" | awk -F. '{ print $NF }')" ||
+				extension=''
 		
-		file_output="$file_hash$extension"
+			file_output="$file_hash$extension"
 		
-		[ "$file_name" = "$file_output" ] && continue
+			[ "$file_name" = "$file_output" ] && continue
 		
-		if [ -f "$file_output" ] ; then
-			if [ ! -f "repeated/$file_output" ] ; then
-				mv -n "$f" "repeated/$file_output"
-				$OPT_QUIET || printf "%s\nrepeated/%s\n" "$f" "$file_output" >&2
+			if [ -f "$file_output" ] ; then
+				if [ ! -f "repeated/$file_output" ] ; then
+					mv -n "$f" "repeated/$file_output"
+					$OPT_QUIET || printf "%s\nrepeated/%s\n" "$f" "$file_output" >&2
+				fi
+				continue
 			fi
-			continue
-		fi
 
-		mv -n "$f" "$file_output"
-		$OPT_QUIET || printf "%s\n%s\n" "$f" "$file_output" >&2
-	done
+			mv -n "$f" "$file_output"
+			$OPT_QUIET || printf "%s\n%s\n" "$f" "$file_output" >&2
+		done
+	}
 }
 
 die() {
