@@ -1,0 +1,57 @@
+#!/bin/sh
+
+main() {
+	parsed_args=$(getopt -o hsSr -l start,stop,restart,help -n 'polybarctl' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0 ] ; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args" 
+
+	if [ $# -eq 1 ]; then
+		show_help;
+		exit 1;
+	fi
+
+	while :; do
+		case "$1" in
+			-s | --start ) start_polybar; exit 0 ;;
+			-S | --stop ) stop_polybar; exit 0 ;;
+			-r | --restart ) restart_polybar; exit 0 ;;
+			-h | --help ) show_help; exit 1 ;;
+			* ) die 'invalid option' ;;
+		esac
+	done
+}
+
+start_polybar() {
+	polybar -c $HOME/.config/polybar/config top &>/tmp/polybar_top.log & disown
+	polybar -c $HOME/.config/polybar/config bottom &>/tmp/polybar_bottom.log & disown
+}
+
+stop_polybar() {
+	killall -q polybar &>/dev/null
+}
+
+restart_polybar() {
+	stop_polybar
+	start_polybar
+}
+
+die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+show_help() {
+	echo Usage: polybarctl [ -hsSr ]
+	echo Options are:
+	echo '     -s | --start                   start polybar'
+	echo '     -S | --stop                    stop polybar'
+	echo '     -r | --restart                 restart polybar'
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
