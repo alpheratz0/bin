@@ -35,6 +35,10 @@ start_shutdown() {
 	[ "$seconds" -eq "$seconds" ] 2>/dev/null || die 'seconds value must be a number'
 	[ "$seconds" -gt 0 ] || die 'seconds value must be a positive number'
 	
+	# rw-r--r-- for files
+	# rwxr-xr-x for directories
+	umask 022
+	
 	echo $$ > /tmp/shutdown.pid
 	
 	for i in $(seq $seconds -1 1); do

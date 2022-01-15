@@ -47,6 +47,10 @@ start_recording() {
 	
 	sink="alsa_output.usb-GeneralPlus_USB_Audio_Device-00.analog-stereo.monitor"
 
+	# rw-r--r-- for files
+	# rwxr-xr-x for directories
+	umask 022		
+
 	mkdir -p "$HOME/.screenrec/$recname"
 
 	echo " Starting" > /tmp/record    
