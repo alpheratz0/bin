@@ -26,7 +26,7 @@ main() {
 	filename="$1"
 
 	[ -z "$filename" ] && die 'filename cannot be empty'
-	echo "$filename" | grep -qE '^[a-zA-Z0-9]+$' || die 'use only alphanumeric characters'
+	echo "$filename" | grep -qE '^[a-zA-Z0-9\-]+$' || die 'use only alphanumeric characters'
 	[ -f "$filename" ] && die 'file already exists'
 
 	cat <<EOF > "$filename"
