@@ -61,7 +61,7 @@ die() {
 }
 
 show_help() {
-	echo Usage: polyipc-shutdown [ -hpc ]
+	echo Usage: polyipc-shutdown [ -h ] [ -p POLYBAR_PID ] [ -c COUNTDOWN ]
 	echo Options are:
 	echo '     -p | --pid                     polybar bar process id'
 	echo '     -c | --countdown               seconds to wait before actually shutting down'
