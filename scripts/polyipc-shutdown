@@ -1,0 +1,71 @@
+#!/bin/sh
+
+#
+# cancellable shutdown
+# ipc for polybar
+#
+
+main() {
+	seconds=5
+	parsed_args=$(getopt -o p:c:h -l pid:,countdown:,help -n 'polyipc-shutdown' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0 ] ; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args" 
+
+	while :; do
+		case "$1" in
+			-p | --pid ) barpid=$2; shift 2 ;;
+			-c | --countdown ) seconds=$2; shift 2 ;;
+			-h | --help ) show_help; exit 1 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+
+	[ -f /tmp/shutdown.pid ] && 
+		cancel_shutdown ||
+		start_shutdown
+}
+
+start_shutdown() {
+	[ "$seconds" -eq "$seconds" ] 2>/dev/null || die 'seconds value must be a number'
+	[ "$seconds" -gt 0 ] || die 'seconds value must be a positive number'
+	
+	echo $$ > /tmp/shutdown.pid
+	
+	for i in $(seq $seconds -1 1); do
+		echo "%{T3}祥%{T-} ${i}s" > /tmp/shutdown
+		polybar-msg -p "$barpid" hook shutdown 2
+		sleep 1
+	done
+
+	echo "Shutting down..." > /tmp/shutdown
+	polybar-msg -p "$barpid" hook shutdown 2
+
+	systemctl poweroff
+}
+
+cancel_shutdown() {
+	kill -9 $(cat /tmp/shutdown.pid)
+	rm /tmp/shutdown.pid
+	polybar-msg -p "$barpid" hook shutdown 1
+}
+
+die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+show_help() {
+	echo Usage: polyipc-shutdown [ -hpc ]
+	echo Options are:
+	echo '     -p | --pid                     polybar bar process id'
+	echo '     -c | --countdown               seconds to wait before actually shutting down'
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
