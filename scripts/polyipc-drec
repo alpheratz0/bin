@@ -1,0 +1,97 @@
+#!/bin/sh
+
+#
+# desktop recorder
+# ipc for polybar
+#
+
+main() {
+	parsed_args=$(getopt -o p:h -l pid:,help -n 'polyipc-drec' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0 ] ; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args" 
+
+	while :; do
+		case "$1" in
+			-p | --pid ) barpid=$2; shift 2 ;;
+			-h | --help ) show_help; exit 1 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+
+	[ -f /tmp/vrecord.pid ] &&
+		stop_recording ||
+		start_recording
+}
+
+ellapsed() {
+	since="$1"
+	now=$(date +%s)
+	delta=$((now - since))
+	minutes=$((delta / 60))
+	seconds=$((delta % 60))
+	printf "%02d:%02d\n" $minutes $seconds
+}
+
+start_recording() {
+	start=$(date +%s)
+	recname=$(date +%Y%m%d%H%M%S)
+	
+	audiodst="$HOME/.screenrec/$recname/audio.mp3"
+	videodst="$HOME/.screenrec/$recname/video.mkv"
+	
+	sink="alsa_output.usb-GeneralPlus_USB_Audio_Device-00.analog-stereo.monitor"
+
+	mkdir -p "$HOME/.screenrec/$recname"
+
+	echo " Starting" > /tmp/record    
+	polybar-msg -p "$barpid" hook rec 2
+	
+	ffmpeg -f pulse -ac 2 -i "$sink" \
+		   -ab 320k -acodec libmp3lame \
+		   -y "$audiodst" 2>/dev/null>&2 &
+
+	echo "$!" > /tmp/vrecord.pid
+
+	ffmpeg -video_size 1920x1080 -framerate 60 -f x11grab \
+		   -i :0.0 -c:v libx264 -crf 0 -preset ultrafast \
+		   -y "$videodst" 2>/dev/null>&2 &
+	
+	echo "$!" > /tmp/arecord.pid
+
+	sleep 0.5
+	while [ -f /tmp/vrecord.pid ]; do
+		echo  STOP $(ellapsed $start) > /tmp/record
+		polybar-msg -p "$barpid" hook rec 2
+		sleep 1
+	done;
+}
+
+stop_recording() {
+	polybar-msg -p "$barpid" hook rec 1
+	/bin/kill -s INT $(cat /tmp/vrecord.pid)
+	/bin/kill -s INT $(cat /tmp/arecord.pid)
+
+	rm -f /tmp/vrecord.pid
+	rm -f /tmp/arecord.pid
+	rm -f /tmp/record
+}
+
+die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+show_help() {
+	echo Usage: polyipc-drec [ -h ] [ -p POLYBAR_PID ]
+	echo Options are:
+	echo '     -p | --pid                     polybar bar process id'
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
