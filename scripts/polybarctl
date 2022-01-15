@@ -27,12 +27,12 @@ main() {
 }
 
 start_polybar() {
-	polybar -c $HOME/.config/polybar/config top &>/tmp/polybar_top.log & disown
-	polybar -c $HOME/.config/polybar/config bottom &>/tmp/polybar_bottom.log & disown
+	nohup polybar -c "$HOME/.config/polybar/config" top >/tmp/polybar_top.log 2>&1 &
+	nohup polybar -c "$HOME/.config/polybar/config" bottom >/tmp/polybar_bottom.log 2>&1 &
 }
 
 stop_polybar() {
-	killall -q polybar &>/dev/null
+	killall -q polybar 2>/dev/null
 }
 
 restart_polybar() {
