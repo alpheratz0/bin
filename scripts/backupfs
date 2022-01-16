@@ -29,21 +29,32 @@ main() {
 		esac
 	done
 
-	$OPT_MOUNT || $OPT_UMOUNT || die 'you must specify either mount or umount option'
-	$OPT_MOUNT && $OPT_UMOUNT && die 'mount and umount options are mutually exclusive'
+	$OPT_MOUNT || 
+		$OPT_UMOUNT || 
+			die 'you must specify either mount or umount option'
+	
+	$OPT_MOUNT && 
+		$OPT_UMOUNT && 
+			die 'mount and umount options are mutually exclusive'
 
-	lsblk -o UUID | grep -qE "^$UUID$" || die 'backup partition disk is not connected'
+	lsblk -o UUID | grep -qE "^$UUID$" || 
+		die 'backup partition disk is not connected'
 
-	if $OPT_MOUNT ; then
-		lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" || die 'backup partition is already mounted'
+	if $OPT_MOUNT; then
+		lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" || 
+			die 'backup partition is already mounted'
+		
 		sudo mount --uuid "$UUID" /back
 		sudo chmod 777 /back
 		sudo chown alpheratz:alpheratz /back
 		exit 0
 	fi
 
-	lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" && die 'backup partition is not mounted'
-	sudo umount /back 2>/dev/null || die 'cannot umount partition because the disk is busy'
+	lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" && 
+		die 'backup partition is not mounted'
+	
+	sudo umount /back 2>/dev/null || 
+		die 'cannot umount partition because the disk is busy'
 }
 
 die() {
