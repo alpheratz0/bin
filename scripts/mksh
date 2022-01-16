@@ -25,9 +25,14 @@ main() {
 		
 	filename="$1"
 
-	[ -z "$filename" ] && die 'filename cannot be empty'
-	echo "$filename" | grep -qE '^[a-zA-Z0-9\-]+$' || die 'use only alphanumeric characters'
-	[ -f "$filename" ] && die 'file already exists'
+	[ -z "$filename" ] && 
+		die 'filename cannot be empty'
+	
+	[ -f "$filename" ] && 
+		die 'file already exists'
+
+	echo "$filename" | grep -qE '^[a-zA-Z0-9\-]+$' || 
+		die 'use only alphanumeric characters'
 
 	cat <<EOF > "$filename"
 #!/bin/sh
