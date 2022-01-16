@@ -39,7 +39,6 @@ main() {
 		htop ) vim ~/.config/htop/htoprc ;;
 		i3 ) vim ~/.config/i3/config ;;
 		polybar ) vim ~/.config/polybar/config ;;
-		polylaunch ) vim ~/.config/polybar/launch.sh ;;
 		picom ) vim ~/.config/picom/picom.conf ;;
 		rofi ) vim ~/.config/rofi/theme.rasi ;;
 		dunst ) vim ~/.config/dunst/dunstrc ;;
