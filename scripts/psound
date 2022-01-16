@@ -5,14 +5,13 @@
 # application
 #
 
-QUERY
-VOLUME
-
 main() {
 	parsed_args=$(getopt -o h -l help -n 'psound' -- "$@")
 	getopt_exit_code=$?
 	
-	[ $getopt_exit_code -ne 0 ] && exit 1
+	if [ $getopt_exit_code -ne 0 ]; then
+		exit 1
+	fi
 
 	eval set -- "$parsed_args"
 
@@ -24,18 +23,41 @@ main() {
 		esac
 	done
 	
-	QUERY="$1"
-	VOLUME="$2"
+	query="$1"
+	volume="$2"
 
-	[ -z "$QUERY" ] && die 'you must specify a query'
-	[ -z "$VOLUME" ] && die 'you must the volume level'
+	[ -z "$query" ] &&
+		die 'you must specify a query'
+	
+	[ -z "$volume" ] &&
+		die 'you must specify the volume level'
 
-	match=$(pactl list sink-inputs | awk 'BEGIN { FS="\"" } /application\.name/{ print $2 }' | grep -iF "$QUERY" | head -n1)
+	[ "$volume" -eq "$volume" ] 2>/dev/null ||
+		die 'volume must be a number'
 
-	[ -z "$match" ] && die 'search query didnt match any application'
+	[ "$volume" -lt 0 ] &&
+		volume=0
 
-	sinkid=$(pactl list sink-inputs | grep -F "application.name = \"$match\"" -B 30 | rev | grep '# tupnI kniS' | cut -d '#' -f1 | rev)
-	pactl set-sink-input-volume "$sinkid" "$VOLUME%"
+	match=$(
+			pactl list sink-inputs | 
+			awk 'BEGIN { FS="\"" } /application\.name/{ print $2 }' | 
+			grep -iF "$query" | 
+			head -n1
+	)
+
+	[ -z "$match" ] &&
+		die 'search query didnt match any application'
+
+	sinkid=$(
+			 pactl list sink-inputs | 
+			 grep -F "application.name = \"$match\"" -B 30 | 
+			 rev | 
+			 grep '# tupnI kniS' | 
+			 cut -d '#' -f1 | 
+			 rev
+	)
+
+	pactl set-sink-input-volume "$sinkid" "$volume%"
 }
 
 die() {
