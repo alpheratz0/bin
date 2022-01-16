@@ -58,7 +58,7 @@ main() {
 }
 
 die() {
-	printf "error: %s\n" "$@" >&2
+	printf "backupfs: %s\n" "$@" >&2
 	exit 1
 }
 
