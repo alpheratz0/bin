@@ -25,12 +25,16 @@ main() {
 
 	filename="$1"
 	
-	[ -z "$filename" ] && die 'filename cannot be empty'
-	[ -f "$filename" ] || die 'file doesnt exist'
+	[ -z "$filename" ] && 
+		die 'filename cannot be empty'
+	
+	[ -f "$filename" ] || 
+		die 'file does not exist'
 	
 	data=$(mediainfo "$filename" | grep 'Encoded date' | head -n1)
 	
-	[ -z "$data" ] && die 'file has no encoded date field in metadata'
+	[ -z "$data" ] && 
+		die 'file has no encoded date field in metadata'
 
 	echo "$data" | awk 'BEGIN { FS="[- :]" } { print $6$7$8$9$10$11 }'
 }
