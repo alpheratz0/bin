@@ -45,7 +45,7 @@ main() {
 	mkdir repeated 2>/dev/null
 
 	find . -maxdepth 1 -type f | { 
-		while read f; do
+		while read -r f; do
 			file_name=$(basename "$f")
 			file_hash=$(md5sum "$f" | awk '{ print $1 }')
 			basename "$f" | grep -Fq '.' && 
