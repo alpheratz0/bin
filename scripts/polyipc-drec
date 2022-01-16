@@ -9,7 +9,7 @@ main() {
 	parsed_args=$(getopt -o p:h -l pid:,help -n 'polyipc-drec' -- "$@")
 	getopt_exit_code=$?
 
-	if [ $getopt_exit_code -ne 0 ] ; then
+	if [ $getopt_exit_code -ne 0 ]; then
 		exit 1
 	fi
 

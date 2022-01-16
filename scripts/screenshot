@@ -14,7 +14,7 @@ main() {
 	parsed_args=$(getopt -o ah -l area,help -n 'screenshot' -- "$@")
 	getopt_exit_code=$?
 
-	if [ $getopt_exit_code -ne 0 ] ; then
+	if [ $getopt_exit_code -ne 0 ]; then
 		exit 1
 	fi
 
@@ -31,7 +31,7 @@ main() {
 
 	[ -d "$OUTDIR" ] || mkdir "$OUTDIR"
 
-	if $OPT_AREA ; then
+	if $OPT_AREA; then
 		AREA=$(slop --quiet --format="%x,%y,%w,%h") || die 'selection cancelled'
 		NOTIFICATION_CMD="notify-send 'area screenshot taken' 'file name: \$f'"
 		scrot -d 1 -z "$FORMAT" -a "$AREA" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD" 2>/dev/null

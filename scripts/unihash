@@ -14,7 +14,7 @@ main() {
 	parsed_args=$(getopt -o Pqh -l no-prompt,quiet,help -n 'unihash' -- "$@")
 	getopt_exit_code=$?
 
-	if [ $getopt_exit_code -ne 0 ] ; then
+	if [ $getopt_exit_code -ne 0 ]; then
 		exit 1
 	fi
 
@@ -33,7 +33,7 @@ main() {
 	[ -n "$1" ] && DIRECTORY="$1"
 	[ -d "$DIRECTORY" ] || die 'target directory doesnt exist'
 
-	if $OPT_PROMPT ; then
+	if $OPT_PROMPT; then
 		num="$(head -c2 /dev/random | od -An -t u2 - | tr -d ' ')"
 		printf "please enter %s to confirm (%s): " "$num" "$(basename "$(realpath "$DIRECTORY")")"
 		read -r guess
@@ -56,8 +56,8 @@ main() {
 		
 			[ "$file_name" = "$file_output" ] && continue
 		
-			if [ -f "$file_output" ] ; then
-				if [ ! -f "repeated/$file_output" ] ; then
+			if [ -f "$file_output" ]; then
+				if [ ! -f "repeated/$file_output" ]; then
 					mv -n "$f" "repeated/$file_output"
 					$OPT_QUIET || printf "%s\nrepeated/%s\n" "$f" "$file_output" >&2
 				fi

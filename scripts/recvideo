@@ -20,7 +20,7 @@ main() {
 	parsed_args=$(getopt -o gd:w:sh -l gif,duration:,wait:,selection,help -n 'recvideo' -- "$@")
 	getopt_exit_code=$?
 
-	if [ $getopt_exit_code -ne 0 ] ; then
+	if [ $getopt_exit_code -ne 0 ]; then
 		exit 1
 	fi
 
@@ -43,15 +43,15 @@ main() {
 	[ "$WAIT" -gt 0 ] || die 'wait value must be a positive number'
 	[ "$DURATION" -gt 0 ] || die 'duration value must be a positive number'
 
-	if $OPT_WAIT ; then
+	if $OPT_WAIT; then
 		sleep "$WAIT"
 	fi
 
-	if $OPT_DURATION ; then
+	if $OPT_DURATION; then
 		FFMPEG_DURATION_FLAG="-t $DURATION"
 	fi
 
-	if $OPT_SELECTION ; then
+	if $OPT_SELECTION; then
 		FFMPEG_SIZPOS_FLAGS=$(slop --quiet --format="-s %wx%h -i :0.0+%x,%y") || exit 1
 	fi	
 
@@ -66,7 +66,7 @@ main() {
 		   -preset ultrafast \
 		   -y "$filename" 2>/dev/null>&2
 
-	if $OPT_GIF ; then
+	if $OPT_GIF; then
 		gif_filename="$(basename "$filename" .mkv).gif"
 		tempwd=$(mktemp -d)
 		mv "$filename" "$tempwd"

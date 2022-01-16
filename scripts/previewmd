@@ -4,7 +4,7 @@ main() {
 	parsed_args=$(getopt -o h -l help -n 'previewmd' -- "$@")
 	getopt_exit_code=$?
 
-	if [ $getopt_exit_code -ne 0 ] ; then
+	if [ $getopt_exit_code -ne 0 ]; then
 		exit 1
 	fi
 
