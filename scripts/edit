@@ -25,7 +25,8 @@ main() {
 
 	target="$1"
 
-	[ -z "$target" ] && die 'target cannot be empty'
+	[ -z "$target" ] && 
+		die 'target cannot be empty'
 
 	case "$target" in
 		alacritty ) vim ~/.alacritty.yml ;;
