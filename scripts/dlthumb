@@ -6,7 +6,7 @@
 #
 
 main() {
-	parsed_args=$(getopt -o h -l help -n 'dlthumb' -- "$@")
+	parsed_args=$(getopt -o o:h -l output:,help -n 'dlthumb' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -17,6 +17,7 @@ main() {
 
 	while :; do
 		case "$1" in
+			-o | --output ) out_filename="$2"; shift 2 ;;
 			-h | --help ) show_help; exit 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
@@ -28,8 +29,11 @@ main() {
 	[ -z "$video_id" ] && 
 		die 'you must specify a video id'
 
+	[ -z "$out_filename" ] &&
+		out_filename="thumb_$video_id.jpg"
+
 	curl -s "https://img.youtube.com/vi/$video_id/maxresdefault.jpg" \
-		 -o "thumb_$video_id.jpg"
+		 -o "$out_filename"
 }
 
 die() {
@@ -38,8 +42,9 @@ die() {
 }
 
 show_help() {
-	echo Usage: dlthumb [ -h ] VIDEO_ID
+	echo Usage: dlthumb [ -h ] [ -o FILENAME ] VIDEO_ID
 	echo Options are:
+	echo '     -o | --output                  specify the name of the output file'
 	echo '     -h | --help                    display this message and exit'
 }
 
