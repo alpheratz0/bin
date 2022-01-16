@@ -25,10 +25,11 @@ main() {
 
 	video_id="$1"
 
-	[ -z "$video_id" ] && die 'no video id specified'
+	[ -z "$video_id" ] && 
+		die 'you must specify a video id'
 
-	curl -s https://img.youtube.com/vi/"$video_id"/maxresdefault.jpg \
-		 -o thumb_"$video_id".jpg
+	curl -s "https://img.youtube.com/vi/$video_id/maxresdefault.jpg" \
+		 -o "thumb_$video_id.jpg"
 }
 
 die() {
@@ -37,7 +38,7 @@ die() {
 }
 
 show_help() {
-	echo Usage: dlthumb [ -h ] VIDEOID
+	echo Usage: dlthumb [ -h ] VIDEO_ID
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
 }
