@@ -44,8 +44,6 @@ main() {
 
 	mkdir repeated 2>/dev/null
 
-	files=$(find . -maxdepth 1 -type f)
-
 	find . -maxdepth 1 -type f | { 
 		while read f; do
 			file_name=$(basename "$f")
