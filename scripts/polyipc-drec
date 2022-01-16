@@ -24,9 +24,11 @@ main() {
 		esac
 	done
 
-	[ -f /tmp/vrecord.pid ] &&
-		stop_recording ||
+	if [ -f /tmp/vrecord.pid ]; then
+		stop_recording
+	else
 		start_recording
+	fi
 }
 
 ellapsed() {
@@ -70,7 +72,7 @@ start_recording() {
 
 	sleep 0.5
 	while [ -f /tmp/vrecord.pid ]; do
-		echo  STOP $(ellapsed $start) > /tmp/record
+		echo  STOP "$(ellapsed "$start")" > /tmp/record
 		polybar-msg -p "$barpid" hook rec 2
 		sleep 1
 	done;
@@ -78,8 +80,8 @@ start_recording() {
 
 stop_recording() {
 	polybar-msg -p "$barpid" hook rec 1
-	/bin/kill -s INT $(cat /tmp/vrecord.pid)
-	/bin/kill -s INT $(cat /tmp/arecord.pid)
+	/bin/kill -s INT "$(cat /tmp/vrecord.pid)"
+	/bin/kill -s INT "$(cat /tmp/arecord.pid)"
 
 	rm -f /tmp/vrecord.pid
 	rm -f /tmp/arecord.pid
