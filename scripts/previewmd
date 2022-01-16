@@ -18,12 +18,12 @@ main() {
 		esac
 	done
 
-	FILENAME="$1"
+	filename="$1"
 
-	[ -f "$FILENAME" ] || die 'file does not exist'
+	[ -f "$filename" ] || 
+		die 'file does not exist'
 
-	pandoc --pdf-engine=xelatex "$FILENAME" -t pdf | zathura -
-
+	pandoc --pdf-engine=xelatex "$filename" -t pdf | zathura -
 }
 
 die() {
@@ -32,7 +32,7 @@ die() {
 }
 
 show_help() {
-	echo Usage: previewmd [ -h ] FILE
+	echo Usage: previewmd [ -h ] FILENAME
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
 }
