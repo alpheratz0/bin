@@ -29,13 +29,13 @@ main() {
 		die 'target cannot be empty'
 
 	case "$target" in
-		alacritty ) vim ~/.alacritty.yml ;;
+		alacritty ) vim ~/.config/alacritty/alacritty.yml ;;
 		vim ) vim ~/.vimrc ;;
 		zsh ) vim ~/.zshrc ;;
 		zprofile ) vim ~/.zprofile ;;
 		xres ) vim ~/.Xresources ;;
 		xinit ) vim ~/.xinitrc ;;	
-		git ) vim ~/.gitconfig ;;
+		git ) vim ~/.config/git/config ;;
 		htop ) vim ~/.config/htop/htoprc ;;
 		i3 ) vim ~/.config/i3/config ;;
 		polybar ) vim ~/.config/polybar/config ;;
