@@ -34,7 +34,7 @@ main() {
 	if $OPT_AREA ; then
 		AREA=$(slop --quiet --format="%x,%y,%w,%h") || die 'selection cancelled'
 		NOTIFICATION_CMD="notify-send 'area screenshot taken' 'file name: \$f'"
-		scrot -d 1 -z "$FORMAT" -a $AREA -e "mv \$f $OUTDIR && $NOTIFICATION_CMD" 2>/dev/null
+		scrot -d 1 -z "$FORMAT" -a "$AREA" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD" 2>/dev/null
 		exit 0
 	fi
 
