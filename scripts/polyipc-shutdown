@@ -60,7 +60,7 @@ cancel_shutdown() {
 }
 
 die() {
-	printf "error: %s\n" "$@" >&2
+	printf "polyipc-shutdown: %s\n" "$@" >&2
 	exit 1
 }
 
