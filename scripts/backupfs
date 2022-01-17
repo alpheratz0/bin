@@ -5,9 +5,9 @@
 # my backup partition
 #
 
-OPT_MOUNT=false
-OPT_UMOUNT=false
-UUID='f69c82e2-0a9e-4197-ad67-13aa6450ad03'
+opt_mount=false
+opt_umount=false
+uuid='f69c82e2-0a9e-4197-ad67-13aa6450ad03'
 
 main() {
 	parsed_args=$(getopt -o muh -l mount,umount,help -n 'backupfs' -- "$@")
@@ -21,36 +21,36 @@ main() {
 
 	while :; do
 		case "$1" in
-			-m | --mount ) OPT_MOUNT=true; shift ;;
-			-u | --umount ) OPT_UMOUNT=true; shift ;;
+			-m | --mount ) opt_mount=true; shift ;;
+			-u | --umount ) opt_umount=true; shift ;;
 			-h | --help ) show_help; exit 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
 
-	$OPT_MOUNT ||
-		$OPT_UMOUNT ||
+	$opt_mount ||
+		$opt_umount ||
 			die 'mount or umount option must be specified'
 
-	$OPT_MOUNT &&
-		$OPT_UMOUNT &&
+	$opt_mount &&
+		$opt_umount &&
 			die 'mount and umount options are mutually exclusive'
 
-	lsblk -o UUID | grep -qE "^$UUID$" ||
+	lsblk -o UUID | grep -qE "^$uuid$" ||
 		die 'storage device is not connected'
 
-	if $OPT_MOUNT; then
-		lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" ||
+	if $opt_mount; then
+		lsblk -o UUID,MOUNTPOINTS | grep -qE "^$uuid\s$" ||
 			die 'partition is already mounted'
 
-		sudo mount --uuid "$UUID" /back
+		sudo mount --uuid "$uuid" /back
 		sudo chmod 777 /back
 		sudo chown alpheratz:alpheratz /back
 		exit 0
 	fi
 
-	lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" &&
+	lsblk -o UUID,MOUNTPOINTS | grep -qE "^$uuid\s$" &&
 		die 'partition is not mounted'
 
 	sudo umount /back 2>/dev/null ||
