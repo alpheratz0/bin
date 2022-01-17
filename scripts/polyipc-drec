@@ -5,8 +5,15 @@
 # ipc for polybar
 #
 
+# colors
+bgcolor='000000'
+fgcolor='FF0000'
+
+opt_default=false
+opt_current=false
+
 main() {
-	parsed_args=$(getopt -o p:h -l pid:,help -n 'polyipc-drec' -- "$@")
+	parsed_args=$(getopt -o DCp:h -l default,current,pid:,help -n 'polyipc-drec' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -17,12 +24,20 @@ main() {
 
 	while :; do
 		case "$1" in
+			-D | --default ) opt_default=true; shift ;;
+			-C | --current ) opt_current=true; shift ;;
 			-p | --pid ) barpid=$2; shift 2 ;;
 			-h | --help ) show_help; exit 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
+
+	$opt_default &&
+		show_default
+
+	$opt_current &&
+		show_current
 
 	if [ -f /tmp/vrecord.pid ]; then
 		stop_recording
@@ -55,7 +70,7 @@ start_recording() {
 
 	mkdir -p "$HOME/.screenrec/$recname"
 
-	echo " Starting" > /tmp/record
+	echo "%{B#$bgcolor}%{F#$fgcolor}   Starting  " > /tmp/record
 	polybar-msg -p "$barpid" hook rec 2
 
 	ffmpeg -f pulse -ac 2 -i "$sink" \
@@ -72,7 +87,7 @@ start_recording() {
 
 	sleep 0.5
 	while [ -f /tmp/vrecord.pid ]; do
-		echo  STOP "$(ellapsed "$start")" > /tmp/record
+		echo "%{A1:polyipc-drec --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   STOP "$(ellapsed "$start")"  %{A}" > /tmp/record
 		polybar-msg -p "$barpid" hook rec 2
 		sleep 1
 	done;
@@ -88,15 +103,27 @@ stop_recording() {
 	rm -f /tmp/record
 }
 
+show_default() {
+	echo "%{A1:polyipc-drec --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Rec  %{A}"
+	exit 0
+}
+
+show_current() {
+	cat /tmp/record
+	exit 0
+}
+
 die() {
 	printf "polyipc-drec: %s\n" "$@" >&2
 	exit 1
 }
 
 show_help() {
-	echo Usage: polyipc-drec [ -h ] [ -p POLYBAR_PID ]
+	echo Usage: polyipc-drec [ -hDC ] [ -p POLYBAR_PID ]
 	echo Options are:
 	echo '     -p | --pid                     polybar bar process id'
+	echo '     -D | --default                 show default message'
+	echo '     -C | --current                 show current message'
 	echo '     -h | --help                    display this message and exit'
 }
 
