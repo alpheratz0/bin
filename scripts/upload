@@ -28,33 +28,32 @@ main() {
 
 	file="$1"
 
-	if [ -z "$file" ]; then
+	[ -z "$file" ] &&
 		die 'you must specify a file'
-	fi
 
-	if [ ! -f "$file" ]; then
+	[ -f "$file" ] ||
 		die 'the file does not exist'
-	fi
 
-	if ! $opt_encrypt; then
+	if $opt_encrypt; then
 
 		#
-		# upload the file without
-		# encryption
+		# to decrypt it later with the passphrase
+		# do gpg -qo filename -d filename.gpg
 		#
 
-		curl -s https://0x0.st -F"file=@$file"
+		gpg -qc "$file" 2>/dev/null || exit 1
+		curl -s https://0x0.st -F"file=@$file.gpg"
+		rm "$file.gpg"
+
 		exit 0
 	fi
 
 	#
-	# to decrypt it later with the passphrase
-	# do gpg -qo filename -d filename.gpg
+	# upload the file without
+	# encryption
 	#
 
-	gpg -qc "$file" 2>/dev/null || exit 1
-	curl -s https://0x0.st -F"file=@$file.gpg"
-	rm "$file.gpg"
+	curl -s https://0x0.st -F"file=@$file"
 }
 
 die() {
