@@ -1,0 +1,225 @@
+#!/bin/sh
+
+#
+# radio player
+# ipc for polybar
+# inspiration and links taken from:
+# https://github.com/Carbon-Bl4ck/Rofi-Beats
+#
+
+
+# colors
+bgcolor="fce702"
+fgcolor="000000"
+htcolor="ff0000"
+
+radhistfile="$HOME/.radhist"
+radheartfile="$HOME/.radheart"
+
+radios=$(printf "%s\n" 'https://play.streamafrica.net/lofiradio' \
+					   'http://stream.zeno.fm/fyn8eh3h5f8uv' \
+					   'http://stream.zeno.fm/f3wvbbqmdg8uv' \
+					   'http://stream.zeno.fm/0r0xa792kwzuv' \
+					   'https://live.radiospinner.com/lofi-hip-hop-64' \
+					   'https://media-ssl.musicradio.com/SmoothChill')
+
+opt_current=false
+opt_default=false
+opt_like=false
+opt_volume_up=false
+opt_volume_down=false
+
+main() {
+	parsed_args=$(getopt -o CDudlp:h -l current,default,up,down,like,pid:,help -n 'polyipc-radio' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0 ]; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args"
+
+	while :; do
+		case "$1" in
+			-C | --current ) opt_current=true; shift ;;
+			-D | --default ) opt_default=true; shift ;;
+			-u | --up ) opt_volume_up=true; shift ;;
+			-d | --down ) opt_volume_down=true; shift ;;
+			-l | --like ) opt_like=true; shift ;;
+			-p | --pid ) barpid=$2; shift 2 ;;
+			-h | --help ) show_help; exit 1 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+
+	# rw-r--r-- for files
+	# rwxr-xr-x for directories
+	umask 022
+
+	[ -f "$HOME/.radhist" ] ||
+		touch "$HOME/.radhist"
+
+	[ -f "$HOME/.radheart" ] ||
+		touch "$HOME/.radheart"
+
+	$opt_current &&
+		show_current
+
+	$opt_volume_down && $opt_volume_up &&
+		die 'cannot increase and decrease the volume at the same time'
+
+	$opt_volume_down &&
+		volume_down
+
+	$opt_volume_up &&
+		volume_up
+
+	$opt_like &&
+		like_song
+
+	$opt_default &&
+		show_default
+
+	if [ -f /tmp/radio.pid ]; then
+		stop_radio
+	else
+		start_radio
+	fi
+}
+
+get_radio() {
+	printf "%s" "$radios" | shuf -n1
+}
+
+get_title() {
+	echo "$@" | grep -E '^.?icy-title' | cut -d ':' -f2- | xargs echo
+}
+
+radmsg() {
+	echo "$@" > /tmp/radio
+	polybar-msg -p "$barpid" hook radio 2
+}
+
+current_volume() {
+	echo '{ "command": ["get_property", "volume"]  }' |
+		netcat -U /tmp/radiosocket |
+		head -n1 |
+		jq '.data'
+}
+
+volume_up() {
+	volume=$(current_volume)
+	volume=$((volume+5))
+
+	if [ "$volume" -gt 100 ]; then
+		volume=100
+	fi
+
+	echo "{ \"command\": [\"set_property\", \"volume\", \"$volume\"] }" |
+		netcat -U /tmp/radiosocket |
+		head -n1
+
+	exit
+}
+
+volume_down() {
+	volume=$(current_volume)
+	volume=$((volume-5))
+
+	if [ "$volume" -lt 0 ]; then
+		volume=0
+	fi
+
+	echo "{ \"command\": [\"set_property\", \"volume\", \"$volume\"] }" |
+		netcat -U /tmp/radiosocket |
+		head -n1
+
+	exit
+}
+
+start_radio() {
+	mpv --volume=60 --input-ipc-server=/tmp/radiosocket -title='polyipc-radio' --no-video "$(get_radio)" 2>/dev/null | {
+		echo $! > /tmp/radio.pid
+		radmsg "%{A1:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Loading...  %{F-}%{B-}%{A}"
+
+		while read -r line; do
+			heart=''
+			timestamp=$(date +'%Y %b %d %H:%M')
+			song=$(get_title "$line")
+
+			[ -z "$song" ] &&
+				continue
+
+			echo "$song" > /tmp/radiosong
+
+			tail -n5 "$radhistfile" | grep -q "$song" ||
+				echo "$timestamp ➜  $song" >> "$radhistfile"
+
+			grep -qF "$song" "$radheartfile" &&
+				heart=''
+
+			heartmsg="%{A1:polyipc-radio --like --pid $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
+			songmsg="%{A3:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}ﱘ%{T-}  $song  $heartmsg%{A}"
+			fullmsg="%{A5:polyipc-radio --down --pid $barpid:}%{A4:polyipc-radio --up --pid $barpid:}$songmsg%{A}%{A}"
+
+			radmsg "$fullmsg"
+		done
+	} &
+}
+
+stop_radio() {
+    polybar-msg -p "$barpid" hook radio 1
+	/bin/kill -s KILL "$(cat /tmp/radio.pid)"
+	rm -f /tmp/radio.pid
+}
+
+show_default() {
+	echo "%{A1:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Play  %{F-}%{B-}%{A}"
+	exit 0
+}
+
+show_current() {
+	head -n1 /tmp/radio
+	exit 0
+}
+
+like_song() {
+	song="$(cat /tmp/radiosong)"
+
+	if grep -qF "$song" "$radheartfile"; then
+		heart=''
+		newlist=$(grep -v -F "$song" "$radheartfile")
+		echo "$newlist" > "$radheartfile"
+	else
+		heart=''
+		echo "$song" >> "$radheartfile"
+	fi
+
+	heartmsg="%{A1:polyipc-radio --like --pid $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
+	songmsg="%{A3:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}ﱘ%{T-}  $song  $heartmsg%{A}"
+	fullmsg="%{A5:polyipc-radio --down --pid $barpid:}%{A4:polyipc-radio --up --pid $barpid:}$songmsg%{A}%{A}"
+
+	radmsg "$fullmsg"
+
+	exit 0
+}
+
+die() {
+	printf "error: %s\n" "$@" >&2
+	exit 1
+}
+
+show_help() {
+	echo Usage: polyipc-radio [ -hlduCD ] [ -p POLYBAR_PID ]
+	echo Options are:
+	echo '     -p | --pid                     polybar bar process id'
+	echo '     -D | --default                 show default message'
+	echo '     -C | --current                 show current message'
+	echo '     -u | --up                      increase the volume of the mpv player'
+	echo '     -d | --down                    decrease the volume of the mpv player'
+	echo '     -l | --like                    toggle current song like status'
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
