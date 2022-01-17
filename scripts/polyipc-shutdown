@@ -5,8 +5,15 @@
 # ipc for polybar
 #
 
+# colors
+bgcolor='ff0000'
+fgcolor='ffffff'
+
+opt_default=false
+opt_current=false
+
 main() {
-	parsed_args=$(getopt -o p:c:h -l pid:,countdown:,help -n 'polyipc-shutdown' -- "$@")
+	parsed_args=$(getopt -o p:DCc:h -l pid:,default,current,countdown:,help -n 'polyipc-shutdown' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -17,6 +24,8 @@ main() {
 
 	while :; do
 		case "$1" in
+			-C | --current ) opt_current=true; shift ;;
+			-D | --default ) opt_default=true; shift ;;
 			-p | --pid ) barpid=$2; shift 2 ;;
 			-c | --countdown ) countdown=$2; shift 2 ;;
 			-h | --help ) show_help; exit 1 ;;
@@ -24,6 +33,12 @@ main() {
 			* ) break ;;
 		esac
 	done
+
+	$opt_default &&
+		show_default
+
+	$opt_current &&
+		show_current
 
 	[ -z "$countdown" ] &&
 		seconds=5
@@ -41,6 +56,16 @@ main() {
 	fi
 }
 
+show_default() {
+	echo "%{A1:polyipc-shutdown --countdown 5 --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}  ⏻  %{A}"
+	exit 0
+}
+
+show_current() {
+	cat /tmp/shutdown
+	exit 0
+}
+
 start_shutdown() {
 	# rw-r--r-- for files
 	# rwxr-xr-x for directories
@@ -49,7 +74,7 @@ start_shutdown() {
 	echo $$ > /tmp/shutdown.pid
 
 	for i in $(seq $countdown -1 1); do
-		echo "%{T3}祥%{T-} ${i}s" > /tmp/shutdown
+		echo "%{A1:polyipc-shutdown --countdown 5 --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}  祥 ${i}s  %{A}" > /tmp/shutdown
 		polybar-msg -p "$barpid" hook shutdown 2
 		sleep 1
 	done
@@ -72,9 +97,11 @@ die() {
 }
 
 show_help() {
-	echo Usage: polyipc-shutdown [ -h ] [ -p POLYBAR_PID ] [ -c COUNTDOWN ]
+	echo Usage: polyipc-shutdown [ -hDC ] [ -p POLYBAR_PID ] [ -c COUNTDOWN ]
 	echo Options are:
 	echo '     -p | --pid                     polybar bar process id'
+	echo '     -D | --default                 show default message'
+	echo '     -C | --current                 show current message'
 	echo '     -c | --countdown               seconds to wait before actually shutting down'
 	echo '     -h | --help                    display this message and exit'
 }
