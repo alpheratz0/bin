@@ -5,7 +5,7 @@
 # the selected area
 #
 
-ffmpeg_sizpos_flags='-s 1920x1080 -i :0.0'
+ffmpeg_sizpos_flags='-i :0.0'
 ffmpeg_duration_flag=''
 
 opt_duration=false
