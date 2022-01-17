@@ -41,7 +41,7 @@ main() {
 		show_current
 
 	[ -z "$countdown" ] &&
-		seconds=5
+		countdown=5
 
 	[ "$countdown" -eq "$countdown" ] 2>/dev/null ||
 		die 'countdown value must be a number'
