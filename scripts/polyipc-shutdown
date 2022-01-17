@@ -86,7 +86,7 @@ start_shutdown() {
 }
 
 cancel_shutdown() {
-	/bin/kill -s KILL $(cat /tmp/shutdown.pid)
+	/bin/kill -s KILL "$(cat /tmp/shutdown.pid)"
 	rm /tmp/shutdown.pid
 	polybar-msg -p "$barpid" hook shutdown 1
 }
