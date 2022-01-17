@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# 
+#
 # change the volume of the specified
 # application
 #
@@ -8,7 +8,7 @@
 main() {
 	parsed_args=$(getopt -o h -l help -n 'psound' -- "$@")
 	getopt_exit_code=$?
-	
+
 	if [ $getopt_exit_code -ne 0 ]; then
 		exit 1
 	fi
@@ -22,13 +22,13 @@ main() {
 			* ) break ;;
 		esac
 	done
-	
+
 	query="$1"
 	volume="$2"
 
 	[ -z "$query" ] &&
 		die 'you must specify a query'
-	
+
 	[ -z "$volume" ] &&
 		die 'you must specify the volume level'
 
@@ -39,9 +39,9 @@ main() {
 		volume=0
 
 	match=$(
-			pactl list sink-inputs | 
-			awk 'BEGIN { FS="\"" } /application\.name/{ print $2 }' | 
-			grep -iF "$query" | 
+			pactl list sink-inputs |
+			awk 'BEGIN { FS="\"" } /application\.name/{ print $2 }' |
+			grep -iF "$query" |
 			head -n1
 	)
 
@@ -49,11 +49,11 @@ main() {
 		die 'search query didnt match any application'
 
 	sinkid=$(
-			 pactl list sink-inputs | 
-			 grep -F "application.name = \"$match\"" -B 30 | 
-			 rev | 
-			 grep '# tupnI kniS' | 
-			 cut -d '#' -f1 | 
+			 pactl list sink-inputs |
+			 grep -F "application.name = \"$match\"" -B 30 |
+			 rev |
+			 grep '# tupnI kniS' |
+			 cut -d '#' -f1 |
 			 rev
 	)
 

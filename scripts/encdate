@@ -13,7 +13,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "$parsed_args" 
+	eval set -- "$parsed_args"
 
 	while :; do
 		case "$1" in
@@ -24,16 +24,16 @@ main() {
 	done
 
 	filename="$1"
-	
-	[ -z "$filename" ] && 
+
+	[ -z "$filename" ] &&
 		die 'filename cannot be empty'
-	
-	[ -f "$filename" ] || 
+
+	[ -f "$filename" ] ||
 		die 'file does not exist'
-	
+
 	data=$(mediainfo "$filename" | grep 'Encoded date' | head -n1)
-	
-	[ -z "$data" ] && 
+
+	[ -z "$data" ] &&
 		die 'file has no encoded date field in metadata'
 
 	echo "$data" | awk 'BEGIN { FS="[- :]" } { print $6$7$8$9$10$11 }'

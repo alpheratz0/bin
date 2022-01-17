@@ -22,16 +22,16 @@ main() {
 			* ) break ;;
 		esac
 	done
-		
+
 	filename="$1"
 
-	[ -z "$filename" ] && 
+	[ -z "$filename" ] &&
 		die 'filename cannot be empty'
-	
-	[ -f "$filename" ] && 
+
+	[ -f "$filename" ] &&
 		die 'file already exists'
 
-	echo "$filename" | grep -qE '^[a-zA-Z0-9\-]+$' || 
+	echo "$filename" | grep -qE '^[a-zA-Z0-9\-]+$' ||
 		die 'use only alphanumeric characters'
 
 	cat <<EOF > "$filename"
@@ -45,7 +45,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "\$parsed_args" 
+	eval set -- "\$parsed_args"
 
 	while :; do
 		case "\$1" in

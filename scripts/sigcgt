@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# 
+#
 # display the signals a process is
 # listening to in a human readable format
 #
@@ -13,7 +13,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "$parsed_args" 
+	eval set -- "$parsed_args"
 
 	while :; do
 		case "$1" in
@@ -22,7 +22,7 @@ main() {
 			* ) break ;;
 		esac
 	done
-	
+
 	pid=$1
 
 	[ -z "$pid" ] &&
@@ -38,13 +38,13 @@ main() {
 	binsig="$(echo "obase=2;ibase=16;$hexsig" | bc | rev | grep -o .)"
 	printnl=false
 	signal=1
-	
+
 	for bit in $binsig; do
-		[ "$bit" -eq 1 ] && 
-			[ "$signal" -ne 32 ] && 
-			[ "$signal" -ne 33 ] && 
+		[ "$bit" -eq 1 ] &&
+			[ "$signal" -ne 32 ] &&
+			[ "$signal" -ne 33 ] &&
 			printf "%s " "$(kill -l $signal)" && printnl=true
-		
+
 		signal=$((signal+1))
 	done
 

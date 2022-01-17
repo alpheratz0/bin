@@ -13,7 +13,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "$parsed_args" 
+	eval set -- "$parsed_args"
 
 	while :; do
 		case "$1" in
@@ -28,7 +28,7 @@ main() {
 	cd "$temp" || exit 1
 	scrot -s selection.png
 
-	[ -f selection.png ] || 
+	[ -f selection.png ] ||
 		die 'selection cancelled'
 
 	tesseract selection.png result 2>/dev/null>&2

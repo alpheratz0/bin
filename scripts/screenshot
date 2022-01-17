@@ -2,7 +2,7 @@
 
 #
 # take a screenshot of the whole screen
-# or the selected area and send 
+# or the selected area and send
 # a notification using dunst
 #
 
@@ -18,7 +18,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "$parsed_args" 
+	eval set -- "$parsed_args"
 
 	while :; do
 		case "$1" in
@@ -41,7 +41,7 @@ main() {
 	fi
 
 	NOTIFICATION_CMD="notify-send 'screenshot taken' 'file name: \$f'"
-	scrot -z "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD"	
+	scrot -z "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD"
 }
 
 die() {

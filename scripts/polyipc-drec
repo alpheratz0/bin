@@ -13,7 +13,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "$parsed_args" 
+	eval set -- "$parsed_args"
 
 	while :; do
 		case "$1" in
@@ -43,21 +43,21 @@ ellapsed() {
 start_recording() {
 	start=$(date +%s)
 	recname=$(date +%Y%m%d%H%M%S)
-	
+
 	audiodst="$HOME/.screenrec/$recname/audio.mp3"
 	videodst="$HOME/.screenrec/$recname/video.mkv"
-	
+
 	sink="alsa_output.usb-GeneralPlus_USB_Audio_Device-00.analog-stereo.monitor"
 
 	# rw-r--r-- for files
 	# rwxr-xr-x for directories
-	umask 022		
+	umask 022
 
 	mkdir -p "$HOME/.screenrec/$recname"
 
-	echo " Starting" > /tmp/record    
+	echo " Starting" > /tmp/record
 	polybar-msg -p "$barpid" hook rec 2
-	
+
 	ffmpeg -f pulse -ac 2 -i "$sink" \
 		   -ab 320k -acodec libmp3lame \
 		   -y "$audiodst" 2>/dev/null>&2 &
@@ -67,7 +67,7 @@ start_recording() {
 	ffmpeg -video_size 1920x1080 -framerate 60 -f x11grab \
 		   -i :0.0 -c:v libx264 -crf 0 -preset ultrafast \
 		   -y "$videodst" 2>/dev/null>&2 &
-	
+
 	echo "$!" > /tmp/arecord.pid
 
 	sleep 0.5

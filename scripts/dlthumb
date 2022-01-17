@@ -13,7 +13,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "$parsed_args" 
+	eval set -- "$parsed_args"
 
 	while :; do
 		case "$1" in
@@ -26,7 +26,7 @@ main() {
 
 	video_id="$1"
 
-	[ -z "$video_id" ] && 
+	[ -z "$video_id" ] &&
 		die 'you must specify a video id'
 
 	[ -z "$out_filename" ] &&

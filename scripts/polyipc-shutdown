@@ -13,7 +13,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "$parsed_args" 
+	eval set -- "$parsed_args"
 
 	while :; do
 		case "$1" in
@@ -45,9 +45,9 @@ start_shutdown() {
 	# rw-r--r-- for files
 	# rwxr-xr-x for directories
 	umask 022
-	
+
 	echo $$ > /tmp/shutdown.pid
-	
+
 	for i in $(seq $countdown -1 1); do
 		echo "%{T3}祥%{T-} ${i}s" > /tmp/shutdown
 		polybar-msg -p "$barpid" hook shutdown 2

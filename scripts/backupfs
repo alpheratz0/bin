@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# mount and umount 
+# mount and umount
 # my backup partition
 #
 
@@ -17,7 +17,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "$parsed_args" 
+	eval set -- "$parsed_args"
 
 	while :; do
 		case "$1" in
@@ -29,31 +29,31 @@ main() {
 		esac
 	done
 
-	$OPT_MOUNT || 
-		$OPT_UMOUNT || 
+	$OPT_MOUNT ||
+		$OPT_UMOUNT ||
 			die 'mount or umount option must be specified'
-	
-	$OPT_MOUNT && 
-		$OPT_UMOUNT && 
+
+	$OPT_MOUNT &&
+		$OPT_UMOUNT &&
 			die 'mount and umount options are mutually exclusive'
 
-	lsblk -o UUID | grep -qE "^$UUID$" || 
+	lsblk -o UUID | grep -qE "^$UUID$" ||
 		die 'storage device is not connected'
 
 	if $OPT_MOUNT; then
-		lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" || 
+		lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" ||
 			die 'partition is already mounted'
-		
+
 		sudo mount --uuid "$UUID" /back
 		sudo chmod 777 /back
 		sudo chown alpheratz:alpheratz /back
 		exit 0
 	fi
 
-	lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" && 
+	lsblk -o UUID,MOUNTPOINTS | grep -qE "^$UUID\s$" &&
 		die 'partition is not mounted'
-	
-	sudo umount /back 2>/dev/null || 
+
+	sudo umount /back 2>/dev/null ||
 		die 'target is busy'
 }
 

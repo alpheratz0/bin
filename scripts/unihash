@@ -18,7 +18,7 @@ main() {
 		exit 1
 	fi
 
-	eval set -- "$parsed_args" 
+	eval set -- "$parsed_args"
 
 	while :; do
 		case "$1" in
@@ -44,18 +44,18 @@ main() {
 
 	mkdir repeated 2>/dev/null
 
-	find . -maxdepth 1 -type f | { 
+	find . -maxdepth 1 -type f | {
 		while read -r f; do
 			file_name=$(basename "$f")
 			file_hash=$(md5sum "$f" | awk '{ print $1 }')
-			basename "$f" | grep -Fq '.' && 
+			basename "$f" | grep -Fq '.' &&
 				extension=".$(basename "$f" | awk -F. '{ print $NF }')" ||
 				extension=''
-		
+
 			file_output="$file_hash$extension"
-		
+
 			[ "$file_name" = "$file_output" ] && continue
-		
+
 			if [ -f "$file_output" ]; then
 				if [ ! -f "repeated/$file_output" ]; then
 					mv -n "$f" "repeated/$file_output"
