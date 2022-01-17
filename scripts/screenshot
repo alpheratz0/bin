@@ -6,9 +6,9 @@
 # a notification using dunst
 #
 
-OPT_AREA=false
-FORMAT="%Y%m%d%H%M%S.png"
-OUTDIR="$HOME/.screenshots"
+opt_area=false
+format="%Y%m%d%H%M%S.png"
+outdir="$HOME/.screenshots"
 
 main() {
 	parsed_args=$(getopt -o ah -l area,help -n 'screenshot' -- "$@")
@@ -22,26 +22,26 @@ main() {
 
 	while :; do
 		case "$1" in
-			-a | --area ) OPT_AREA=true; shift ;;
+			-a | --area ) opt_area=true; shift ;;
 			-h | --help ) show_help; exit 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
 
-	[ -d "$OUTDIR" ] ||
-		mkdir "$OUTDIR"
+	[ -d "$outdir" ] ||
+		mkdir "$outdir"
 
-	if $OPT_AREA; then
-		AREA=$(slop --quiet --format="%x,%y,%w,%h") ||
+	if $opt_area; then
+		area=$(slop --quiet --format="%x,%y,%w,%h") ||
 			die 'selection cancelled'
-		NOTIFICATION_CMD="notify-send 'area screenshot taken' 'file name: \$f'"
-		scrot -d 1 -z "$FORMAT" -a "$AREA" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD" 2>/dev/null
+		notification_cmd="notify-send 'area screenshot taken' 'file name: \$f'"
+		scrot -d 1 -z "$format" -a "$area" -e "mv \$f $outdir && $notification_cmd" 2>/dev/null
 		exit 0
 	fi
 
-	NOTIFICATION_CMD="notify-send 'screenshot taken' 'file name: \$f'"
-	scrot -z "$FORMAT" -e "mv \$f $OUTDIR && $NOTIFICATION_CMD"
+	notification_cmd="notify-send 'screenshot taken' 'file name: \$f'"
+	scrot -z "$format" -e "mv \$f $outdir && $notification_cmd"
 }
 
 die() {
