@@ -26,22 +26,40 @@ main() {
 		esac
 	done
 
-	if ! $OPT_INTERACTIVE; then
-		sound_source="$1"
-		[ -z "$sound_source" ] && die 'no source specified'
-		pactl list short sources | awk '{ print $2 }' | grep -qE "^$sound_source$" || die 'invalid source'
-		ffmpeg -f pulse -ac 2 -i "$sound_source" -ab 320k -acodec libmp3lame "$(date +%Y%m%d%H%M%S).mp3" 2>/dev/null>&2
+	if $OPT_INTERACTIVE; then
+		audio_source=$(
+			pactl list short sources |
+			awk '{ print $2 }' |
+			rofi -dmenu -p 'audio source'
+		)
+
+		[ -z "$audio_source" ] &&
+			die 'no source specified'
+
+		ffmpeg -f pulse \
+			   -ac 2 -i "$audio_source" \
+			   -ab 320k -acodec libmp3lame \
+			   -y "$(date +%Y%m%d%H%M%S).mp3" 2>/dev/null>&2
+
 		exit 0
 	fi
 
-	sound_source_id=$(whiptail --notags --title "Select source" --menu "Options" 25 100 10 $(pactl list short sources | awk '{ print $1," ",$2 }') 3>&1 1>&2 2>&3)
-	
-	if [ $? -ne 0 ]; then
-		exit 1
-	fi
-	
-	sound_source=$(pactl list short sources | awk "/^$sound_source_id\\s/{ print \$2 }")
-	ffmpeg -f pulse -ac 2 -i "$sound_source" -ab 320k -acodec libmp3lame "$(date +%Y%m%d%H%M%S).mp3" 2>/dev/null>&2
+	#
+	# non interactive
+	#
+
+	audio_source="$1"
+
+	[ -z "$audio_source" ] &&
+		die 'no source specified'
+
+	pactl list short sources | awk '{ print $2 }' | grep -qE "^$audio_source$" ||
+		die 'invalid source'
+
+	ffmpeg -f pulse \
+		   -ac 2 -i "$audio_source" \
+		   -ab 320k -acodec libmp3lame \
+		   -y "$(date +%Y%m%d%H%M%S).mp3" 2>/dev/null>&2
 }
 
 die() {
