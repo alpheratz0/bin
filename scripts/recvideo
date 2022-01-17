@@ -5,16 +5,16 @@
 # the selected area
 #
 
-FFMPEG_SIZPOS_FLAGS='-s 1920x1080 -i :0.0'
-FFMPEG_DURATION_FLAG=''
+ffmpeg_sizpos_flags='-s 1920x1080 -i :0.0'
+ffmpeg_duration_flag=''
 
-OPT_DURATION=false
-OPT_WAIT=false
-OPT_SELECTION=false
-OPT_GIF=false
-DURATION=1
-WAIT=1
-FPS=60
+opt_duration=false
+opt_wait=false
+opt_selection=false
+opt_gif=false
+duration=1
+waitseconds=1
+fps=60
 
 main() {
 	parsed_args=$(getopt -o gd:w:sh -l gif,duration:,wait:,selection,help -n 'recvideo' -- "$@")
@@ -28,45 +28,45 @@ main() {
 
 	while :; do
 		case "$1" in
-			-g | --gif ) OPT_GIF=true; FPS=20; shift ;;
-			-d | --duration ) OPT_DURATION=true; DURATION="$2"; shift 2 ;;
-			-w | --wait ) OPT_WAIT=true; WAIT="$2"; shift 2 ;;
-			-s | --selection ) OPT_SELECTION=true; shift ;;
+			-g | --gif ) opt_gif=true; fps=20; shift ;;
+			-d | --duration ) opt_duration=true; duration="$2"; shift 2 ;;
+			-w | --wait ) opt_wait=true; waitseconds="$2"; shift 2 ;;
+			-s | --selection ) opt_selection=true; shift ;;
 			-h | --help ) show_help; exit 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
 
-	[ "$WAIT" -eq "$WAIT" ] 2>/dev/null || die 'wait value must be a number'
-	[ "$DURATION" -eq "$DURATION" ] 2>/dev/null || die 'duration value must be a number'
-	[ "$WAIT" -gt 0 ] || die 'wait value must be a positive number'
-	[ "$DURATION" -gt 0 ] || die 'duration value must be a positive number'
+	[ "$waitseconds" -eq "$waitseconds" ] 2>/dev/null || die 'wait value must be a number'
+	[ "$duration" -eq "$duration" ] 2>/dev/null || die 'duration value must be a number'
+	[ "$waitseconds" -gt 0 ] || die 'wait value must be a positive number'
+	[ "$duration" -gt 0 ] || die 'duration value must be a positive number'
 
-	if $OPT_WAIT; then
-		sleep "$WAIT"
+	if $opt_wait; then
+		sleep "$waitseconds"
 	fi
 
-	if $OPT_DURATION; then
-		FFMPEG_DURATION_FLAG="-t $DURATION"
+	if $opt_duration; then
+		ffmpeg_duration_flag="-t $duration"
 	fi
 
-	if $OPT_SELECTION; then
-		FFMPEG_SIZPOS_FLAGS=$(slop --quiet --format="-s %wx%h -i :0.0+%x,%y") || exit 1
+	if $opt_selection; then
+		ffmpeg_sizpos_flags=$(slop --quiet --format="-s %wx%h -i :0.0+%x,%y") || exit 1
 	fi
 
 	filename="$(date +%Y%m%d%H%M%S).mkv"
 
-	ffmpeg -framerate $FPS \
+	ffmpeg -framerate $fps \
 		   -f x11grab \
-		   $FFMPEG_SIZPOS_FLAGS \
-		   $FFMPEG_DURATION_FLAG \
+		   $ffmpeg_sizpos_flags \
+		   $ffmpeg_duration_flag \
 		   -c:v libx264 \
 		   -crf 0 \
 		   -preset ultrafast \
 		   -y "$filename" 2>/dev/null>&2
 
-	if $OPT_GIF; then
+	if $opt_gif; then
 		gif_filename="$(basename "$filename" .mkv).gif"
 		tempwd=$(mktemp -d)
 		mv "$filename" "$tempwd"
