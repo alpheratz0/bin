@@ -5,7 +5,7 @@
 # pulseaudio using ffmpeg
 #
 
-OPT_INTERACTIVE=false
+opt_interactive=false
 
 main() {
 	parsed_args=$(getopt -o ih -l interactive,help -n 'recaudio' -- "$@")
@@ -20,13 +20,13 @@ main() {
 	while :; do
 		case "$1" in
 			-h | --help ) show_help; exit 1 ;;
-			-i | --interactive ) OPT_INTERACTIVE=true; shift 1 ;;
+			-i | --interactive ) opt_interactive=true; shift 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
 
-	if $OPT_INTERACTIVE; then
+	if $opt_interactive; then
 		audio_source=$(
 			pactl list short sources |
 			awk '{ print $2 }' |
