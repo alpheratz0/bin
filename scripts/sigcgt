@@ -25,16 +25,21 @@ main() {
 	
 	pid=$1
 
-	[ -z "$pid" ] && die 'process id must be specified'
-	[ "$pid" -eq "$pid" ] 2>/dev/null || die 'process id must be a number'
-	[ -f /proc/"$pid"/status ] || die 'process not found'
+	[ -z "$pid" ] &&
+		die 'process id must be specified'
 
-	hexsig=$(awk '/^SigCgt/ { print toupper($2) }' /proc/"$pid"/status)
+	[ "$pid" -eq "$pid" ] 2>/dev/null ||
+		die 'process id must be a number'
+
+	[ -f /proc/"$pid"/status ] ||
+		die 'process not found'
+
+	hexsig=$(awk '/^SigCgt/ { print toupper($2) }' "/proc/$pid/status")
 	binsig="$(echo "obase=2;ibase=16;$hexsig" | bc | rev | grep -o .)"
 	printnl=false
 	signal=1
 	
-	for bit in $binsig ; do 
+	for bit in $binsig; do
 		[ "$bit" -eq 1 ] && 
 			[ "$signal" -ne 32 ] && 
 			[ "$signal" -ne 33 ] && 
