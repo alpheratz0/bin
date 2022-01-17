@@ -87,7 +87,7 @@ start_recording() {
 
 	sleep 0.5
 	while [ -f /tmp/vrecord.pid ]; do
-		echo "%{A1:polyipc-drec --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   STOP "$(ellapsed "$start")"  %{A}" > /tmp/record
+		echo "%{A1:polyipc-drec --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   STOP $(ellapsed "$start")  %{A}" > /tmp/record
 		polybar-msg -p "$barpid" hook rec 2
 		sleep 1
 	done;
