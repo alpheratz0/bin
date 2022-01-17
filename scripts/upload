@@ -5,8 +5,7 @@
 # with the ability to encrypt it before with a passphrase
 #
 
-OPT_ENCRYPT=false
-FILE=
+opt_encrypt=false
 
 main() {
 	parsed_args=$(getopt -o eh -l encrypt,help -n 'upload' -- "$@")
@@ -21,30 +20,30 @@ main() {
 	while :; do
 		case "$1" in
 			-h | --help ) show_help; exit 1 ;;
-			-e | --encrypt ) OPT_ENCRYPT=true; shift 1 ;;
+			-e | --encrypt ) opt_encrypt=true; shift 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
 
-	FILE="$1"
+	file="$1"
 
-	if [ -z "$FILE" ]; then
+	if [ -z "$file" ]; then
 		die 'you must specify a file'
 	fi
 
-	if [ ! -f "$FILE" ]; then
+	if [ ! -f "$file" ]; then
 		die 'the file does not exist'
 	fi
 
-	if ! $OPT_ENCRYPT; then
+	if ! $opt_encrypt; then
 
 		#
 		# upload the file without
 		# encryption
 		#
 
-		curl -s https://0x0.st -F"file=@$FILE"
+		curl -s https://0x0.st -F"file=@$file"
 		exit 0
 	fi
 
@@ -53,9 +52,9 @@ main() {
 	# do gpg -qo filename -d filename.gpg
 	#
 
-	gpg -qc "$FILE" 2>/dev/null || exit 1
-	curl -s https://0x0.st -F"file=@$FILE.gpg"
-	rm "$FILE.gpg"
+	gpg -qc "$file" 2>/dev/null || exit 1
+	curl -s https://0x0.st -F"file=@$file.gpg"
+	rm "$file.gpg"
 }
 
 die() {
