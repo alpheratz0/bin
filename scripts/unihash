@@ -6,9 +6,9 @@
 # ones to the repeated directory
 #
 
-OPT_PROMPT=true
-OPT_QUIET=false
-DIRECTORY='.'
+opt_prompt=true
+opt_quiet=false
+directory='.'
 
 main() {
 	parsed_args=$(getopt -o Pqh -l no-prompt,quiet,help -n 'unihash' -- "$@")
@@ -22,25 +22,25 @@ main() {
 
 	while :; do
 		case "$1" in
-			-P | --no-prompt ) OPT_PROMPT=false; shift ;;
-			-q | --quiet ) OPT_QUIET=true; shift ;;
+			-P | --no-prompt ) opt_prompt=false; shift ;;
+			-q | --quiet ) opt_quiet=true; shift ;;
 			-h | --help ) show_help; exit 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
 
-	[ -n "$1" ] && DIRECTORY="$1"
-	[ -d "$DIRECTORY" ] || die 'target directory doesnt exist'
+	[ -n "$1" ] && directory="$1"
+	[ -d "$directory" ] || die 'target directory doesnt exist'
 
-	if $OPT_PROMPT; then
+	if $opt_prompt; then
 		num="$(head -c2 /dev/random | od -An -t u2 - | tr -d ' ')"
-		printf "please enter %s to confirm (%s): " "$num" "$(basename "$(realpath "$DIRECTORY")")"
+		printf "please enter %s to confirm (%s): " "$num" "$(basename "$(realpath "$directory")")"
 		read -r guess
 		[ "$num" != "$guess" ] && die 'numbers didnt match'
 	fi
 
-	cd "$DIRECTORY" || exit 1
+	cd "$directory" || exit 1
 
 	mkdir repeated 2>/dev/null
 
@@ -59,13 +59,13 @@ main() {
 			if [ -f "$file_output" ]; then
 				if [ ! -f "repeated/$file_output" ]; then
 					mv -n "$f" "repeated/$file_output"
-					$OPT_QUIET || printf "%s\nrepeated/%s\n" "$f" "$file_output" >&2
+					$opt_quiet || printf "%s\nrepeated/%s\n" "$f" "$file_output" >&2
 				fi
 				continue
 			fi
 
 			mv -n "$f" "$file_output"
-			$OPT_QUIET || printf "%s\n%s\n" "$f" "$file_output" >&2
+			$opt_quiet || printf "%s\n%s\n" "$f" "$file_output" >&2
 		done
 	}
 }
