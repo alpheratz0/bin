@@ -28,7 +28,8 @@ main() {
 	cd "$temp" || exit 1
 	scrot -s selection.png
 
-	[ -f selection.png ] || die 'selection cancelled'
+	[ -f selection.png ] || 
+		die 'selection cancelled'
 
 	tesseract selection.png result 2>/dev/null>&2
 	xclip -i -sel clipboard < result.txt
