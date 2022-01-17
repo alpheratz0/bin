@@ -31,12 +31,17 @@ main() {
 	[ -f "$filename" ] ||
 		die 'file does not exist'
 
-	data=$(mediainfo "$filename" | grep 'Encoded date' | head -n1)
+	data=$(
+		mediainfo "$filename" |
+		grep 'Encoded date' |
+		head -n1
+	)
 
 	[ -z "$data" ] &&
 		die 'file has no encoded date field in metadata'
 
-	echo "$data" | awk 'BEGIN { FS="[- :]" } { print $6$7$8$9$10$11 }'
+	echo "$data" |
+		awk 'BEGIN { FS="[- :]" } { print $6$7$8$9$10$11 }'
 }
 
 die() {
