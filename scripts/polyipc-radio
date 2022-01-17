@@ -13,8 +13,10 @@ bgcolor="fce702"
 fgcolor="000000"
 htcolor="ff0000"
 
-radhistfile="$HOME/.radhist"
-radheartfile="$HOME/.radheart"
+
+datadir="$XDG_DATA_HOME/polyipc-radio"
+radhistfile="$datadir/history"
+radfavfile="$datadir/favs"
 
 radios=$(printf "%s\n" 'https://play.streamafrica.net/lofiradio' \
 					   'http://stream.zeno.fm/fyn8eh3h5f8uv' \
@@ -57,11 +59,14 @@ main() {
 	# rwxr-xr-x for directories
 	umask 022
 
-	[ -f "$HOME/.radhist" ] ||
-		touch "$HOME/.radhist"
+	[ -d "$datadir" ] ||
+		mkdir -p "$datadir"
 
-	[ -f "$HOME/.radheart" ] ||
-		touch "$HOME/.radheart"
+	[ -f "$radhistfile" ] ||
+		touch "$radhistfile"
+
+	[ -f "$radfavfile" ] ||
+		touch "$radfavfile"
 
 	$opt_current &&
 		show_current
@@ -156,7 +161,7 @@ start_radio() {
 			tail -n5 "$radhistfile" | grep -q "$song" ||
 				echo "$timestamp ➜  $song" >> "$radhistfile"
 
-			grep -qF "$song" "$radheartfile" &&
+			grep -qF "$song" "$radfavfile" &&
 				heart=''
 
 			heartmsg="%{A1:polyipc-radio --like --pid $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
@@ -187,13 +192,13 @@ show_current() {
 like_song() {
 	song="$(cat /tmp/radiosong)"
 
-	if grep -qF "$song" "$radheartfile"; then
+	if grep -qF "$song" "$radfavfile"; then
 		heart=''
-		newlist=$(grep -v -F "$song" "$radheartfile")
-		echo "$newlist" > "$radheartfile"
+		newlist=$(grep -v -F "$song" "$radfavfile")
+		echo "$newlist" > "$radfavfile"
 	else
 		heart=''
-		echo "$song" >> "$radheartfile"
+		echo "$song" >> "$radfavfile"
 	fi
 
 	heartmsg="%{A1:polyipc-radio --like --pid $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
