@@ -79,7 +79,7 @@ start_shutdown() {
 		sleep 1
 	done
 
-	echo "Shutting down..." > /tmp/shutdown
+	echo "%{B#$bgcolor}%{F#$fgcolor}  Shutting down..." > /tmp/shutdown
 	polybar-msg -p "$barpid" hook shutdown 2
 
 	systemctl poweroff
