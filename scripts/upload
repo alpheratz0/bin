@@ -41,7 +41,9 @@ main() {
 		# do gpg -qo filename -d filename.gpg
 		#
 
-		gpg -qc "$file" 2>/dev/null || exit 1
+		gpg -qc "$file" 2>/dev/null ||
+			die 'gpg encryption failed or cancelled'
+
 		curl -s https://0x0.st -F"file=@$file.gpg"
 		rm "$file.gpg"
 
