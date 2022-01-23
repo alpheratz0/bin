@@ -1,0 +1,40 @@
+#!/bin/sh
+
+#
+# get n-length random
+# hexadecimal characters
+#
+
+main() {
+	if [ -n "$1" ] ; then
+		case "$1" in
+			-h | --help ) show_help; exit 1 ;;
+			-* ) length=$(printf "%s" "$1" | cut -d'-' -f2); shift; break ;;
+			* ) show_help; exit 1 ;;
+		esac
+	fi
+
+	[ -z "$length" ] &&
+		length=16
+
+	[ "$length" -eq "$length" ] 2> /dev/null ||
+		die 'invalid length'
+
+	[ "$length" -lt 1 ] &&
+		die 'invalid length'
+
+	head -c "$length" /dev/random | od -An -w2 -t x1 - | tr -d ' ' | tr -d '\n' | head -c "$length"
+}
+
+die() {
+	printf "rand: %s\n" "$@" >&2
+	exit 1
+}
+
+show_help() {
+	echo Usage: rand [ -h ] [ -LENGTH ]
+	echo Options are:
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
