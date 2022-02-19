@@ -7,6 +7,8 @@
 
 opt_interactive=false
 
+trap '' INT
+
 main() {
 	parsed_args=$(getopt -o ih -l interactive,help -n 'recaudio' -- "$@")
 	getopt_exit_code=$?
