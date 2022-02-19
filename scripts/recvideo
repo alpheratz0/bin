@@ -16,6 +16,8 @@ duration=1
 waitseconds=1
 fps=60
 
+trap '' INT
+
 main() {
 	parsed_args=$(getopt -o gd:w:sh -l gif,duration:,wait:,selection,help -n 'recvideo' -- "$@")
 	getopt_exit_code=$?
