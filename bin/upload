@@ -59,7 +59,7 @@ main() {
 }
 
 die() {
-	printf "sltx: %s\n" "$@" >&2
+	printf "upload: %s\n" "$@" >&2
 	exit 1
 }
 
