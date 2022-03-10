@@ -1,0 +1,82 @@
+#!/bin/bash
+
+#
+# this helped me when I didnt know about
+# tiling window managers
+#
+
+main() {
+
+	exec 4<>/var/lock/duacritty.lock
+
+	if ! flock -n 4 ; then
+		tty -s &&
+			echo 'duacritty: couldnt acquire lock file /var/lock/duacritty.lock' >&2 ||
+			notify-send 'duacritty: couldnt acquire lock file /var/lock/duacritty.lock'
+	    exit 1
+	fi
+
+	gap=40
+	leftwperc=35
+	rightwperc=$((100-$leftwperc))
+	screendim=($(xdpyinfo | awk '/dimensions:/ { print $2 }' | tr 'x' ' '))
+	ltermdim=($((((${screendim[0]} - $gap*3) * $leftwperc) / 100)) 500)
+	rtermdim=($((((${screendim[0]} - $gap*3) * $rightwperc) / 100)) 500)
+
+	parsed_args=$(getopt -o l:r:h -l left:,right:,help -n 'duacritty' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0  ] ; then
+	    exit 1
+	fi
+
+	eval set -- "$parsed_args"
+
+	while :; do
+	    case "$1" in
+	        -l | --left ) lpath="$2"; shift 2 ;;
+	        -r | --right ) rpath="$2"; shift 2 ;;
+	        -h | --help ) show_help; exit 1 ;;
+	        -- ) shift; break ;;
+	        * ) break ;;
+	    esac
+	done
+
+	[ -d "$lpath"  ] || lpath="$HOME"
+	[ -d "$rpath"  ] || rpath="$HOME"
+
+	killall --quiet -9 alacritty
+
+	alacritty --class LeftAlacrittyTerminal --working-directory "$lpath" &
+	alacritty --class RightAlacrittyTerminal --working-directory "$rpath" &
+
+	until exists_window 'LeftAlacrittyTerminal'; do sleep .1; done
+	until exists_window 'RightAlacrittyTerminal'; do sleep .1; done
+
+	lwid=$(xdotool search --sync --onlyvisible --limit 1 --classname 'LeftAlacrittyTerminal')
+	rwid=$(xdotool search --sync --onlyvisible --limit 1 --classname 'RightAlacrittyTerminal')
+
+	xdotool windowsize $lwid ${ltermdim[0]} ${ltermdim[1]}
+	xdotool windowsize $rwid ${rtermdim[0]} ${rtermdim[1]}
+
+	xdotool windowmove $lwid $gap $(((${screendim[1]} - ${ltermdim[1]}) / 2))
+	xdotool windowmove $rwid $(($gap*2 + ${ltermdim[0]})) $(((${screendim[1]} - ${rtermdim[1]}) / 2))
+
+	flock -u 4
+
+}
+
+exists_window() {
+	classname="$1"
+	xdotool search --sync --onlyvisible --limit 1 --classname "$classname" 2>/dev/null
+}
+
+show_help() {
+	echo Usage: duacritty [ -h ] [ -l directory ] [ -r directory ]
+	echo Options are:
+	echo '     -l | --left                    set working directory of left terminal'
+	echo '     -r | --right                   set working directory of right terminal'
+	echo '     -h | --help                    display this message and exit'
+}
+
+main "$@"
