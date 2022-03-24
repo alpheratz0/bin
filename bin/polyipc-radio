@@ -174,7 +174,7 @@ start_radio() {
 }
 
 stop_radio() {
-    polybar-msg -p "$barpid" hook radio 1
+	polybar-msg -p "$barpid" hook radio 1
 	/bin/kill -s KILL "$(cat /tmp/radio.pid)"
 	rm -f /tmp/radio.pid
 }
