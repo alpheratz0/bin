@@ -27,9 +27,7 @@ main() {
 	done
 
 	if $opt_list; then
-		pactl list sink-inputs |
-			awk 'BEGIN { FS="\"" } /application\.name/{ print $2 }'
-
+		pasid | cut -d '-' -f2- | grep -o '[^ ].*'
 		exit 0
 	fi
 
@@ -49,22 +47,16 @@ main() {
 		volume=0
 
 	match=$(
-			pactl list sink-inputs |
-			awk 'BEGIN { FS="\"" } /application\.name/{ print $2 }' |
-			grep -iF "$query" |
-			head -n1
+		pasid | cut -d '-' -f2- | grep -o '[^ ].*' |
+		grep -iF "$query" |
+		head -n1
 	)
 
 	[ -z "$match" ] &&
 		die 'search query didnt match any application'
 
 	sinkid=$(
-			 pactl list sink-inputs |
-			 grep -F "application.name = \"$match\"" -B 30 |
-			 rev |
-			 grep '# tupnI kniS' |
-			 cut -d '#' -f1 |
-			 rev
+		pasid | grep -F "$match" | head -n1 | awk '{ print $1 }'
 	)
 
 	pactl set-sink-input-volume "$sinkid" "$volume%"
