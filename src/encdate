@@ -41,6 +41,7 @@ main() {
 		die 'file has no encoded date field in metadata'
 
 	echo "$data" |
+		tr -s ' ' ' ' |
 		awk 'BEGIN { FS="[- :]" } { print $6$7$8$9$10$11 }'
 }
 
