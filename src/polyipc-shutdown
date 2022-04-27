@@ -67,6 +67,9 @@ show_current() {
 }
 
 start_shutdown() {
+	# to prevent misclicks
+	notify-send 'warning' 'the computer will shutdown in 10 seconds'
+
 	# rw-r--r-- for files
 	# rwxr-xr-x for directories
 	umask 022
