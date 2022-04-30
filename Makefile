@@ -2,7 +2,6 @@ PREFIX = /usr/local
 
 install:
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
-	@chmod 755 src/*
-	@cp -f src/* ${DESTDIR}${PREFIX}/bin
+	@install -m755 -t ${DESTDIR}${PREFIX}/bin src/*
 
 .PHONY: install
