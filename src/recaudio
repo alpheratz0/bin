@@ -9,7 +9,8 @@ opt_interactive=false
 
 trap '' INT
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o ih -l interactive,help -n 'recaudio' -- "$@")
 	getopt_exit_code=$?
 
@@ -50,12 +51,14 @@ main() {
 		   -y "$(date +%Y%m%d%H%M%S).mp3" 2>/dev/null>&2
 }
 
-die() {
+die()
+{
 	printf "recaudio: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: recaudio [ -ih ] SOURCE
 	echo Options are:
 	echo '     -i | --interactive             select the audio source interactively'

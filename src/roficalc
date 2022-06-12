@@ -5,7 +5,8 @@
 # copy its output to the clipboard
 #
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o h -l help -n 'roficalc' -- "$@")
 	getopt_exit_code=$?
 
@@ -34,7 +35,8 @@ main() {
 		 -hint-result ''
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: roficalc [ -h ]
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'

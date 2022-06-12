@@ -1,6 +1,7 @@
 #!/bin/sh
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o h -l help -n 'previewmd' -- "$@")
 	getopt_exit_code=$?
 
@@ -26,12 +27,14 @@ main() {
 	pandoc --pdf-engine=xelatex "$filename" -t pdf | zathura -
 }
 
-die() {
+die()
+{
 	printf "previewmd: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: previewmd [ -h ] FILENAME
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'

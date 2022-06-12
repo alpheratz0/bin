@@ -5,7 +5,8 @@
 # listening to in a human readable format
 #
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o h -l help -n 'sigcgt' -- "$@")
 	getopt_exit_code=$?
 
@@ -51,12 +52,14 @@ main() {
 	$printnl && printf "\n"
 }
 
-die() {
+die()
+{
 	printf "sigcgt: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: sigcgt [ -h ] PID
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'

@@ -31,7 +31,8 @@ opt_like=false
 opt_volume_up=false
 opt_volume_down=false
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o CDudlp:h -l current,default,up,down,like,pid:,help -n 'polyipc-radio' -- "$@")
 	getopt_exit_code=$?
 
@@ -93,27 +94,32 @@ main() {
 	fi
 }
 
-get_radio() {
+get_radio()
+{
 	printf "%s" "$radios" | shuf -n1
 }
 
-get_title() {
+get_title()
+{
 	echo "$@" | grep -E '^.?icy-title' | cut -d ':' -f2- | xargs echo
 }
 
-radmsg() {
+radmsg()
+{
 	echo "$@" > /tmp/radio
 	polybar-msg -p "$barpid" hook radio 2
 }
 
-current_volume() {
+current_volume()
+{
 	echo '{ "command": ["get_property", "volume"]  }' |
 		netcat -U /tmp/radiosocket |
 		head -n1 |
 		jq '.data'
 }
 
-volume_up() {
+volume_up()
+{
 	volume=$(current_volume)
 	volume=$((volume+5))
 
@@ -128,7 +134,8 @@ volume_up() {
 	exit
 }
 
-volume_down() {
+volume_down()
+{
 	volume=$(current_volume)
 	volume=$((volume-5))
 
@@ -143,7 +150,8 @@ volume_down() {
 	exit
 }
 
-start_radio() {
+start_radio()
+{
 	mpv --volume=60 --input-ipc-server=/tmp/radiosocket -title='polyipc-radio' --no-video "$(get_radio)" 2>/dev/null | {
 		echo $! > /tmp/radio.pid
 		radmsg "%{A1:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Loading...  %{F-}%{B-}%{A}"
@@ -173,23 +181,27 @@ start_radio() {
 	} &
 }
 
-stop_radio() {
+stop_radio()
+{
 	polybar-msg -p "$barpid" hook radio 1
 	/bin/kill -s KILL "$(cat /tmp/radio.pid)"
 	rm -f /tmp/radio.pid
 }
 
-show_default() {
+show_default()
+{
 	echo "%{A1:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Play  %{F-}%{B-}%{A}"
 	exit 0
 }
 
-show_current() {
+show_current()
+{
 	head -n1 /tmp/radio
 	exit 0
 }
 
-like_song() {
+like_song()
+{
 	song="$(cat /tmp/radiosong)"
 
 	if grep -qF "$song" "$radfavfile"; then
@@ -210,12 +222,14 @@ like_song() {
 	exit 0
 }
 
-die() {
+die()
+{
 	printf "error: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: polyipc-radio [ -hlduCD ] [ -p POLYBAR_PID ]
 	echo Options are:
 	echo '     -p | --pid                     polybar bar process id'

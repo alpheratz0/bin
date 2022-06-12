@@ -5,7 +5,8 @@
 # in the highest quality
 #
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o o:h -l output:,help -n 'dlthumb' -- "$@")
 	getopt_exit_code=$?
 
@@ -36,12 +37,14 @@ main() {
 		 -o "$out_filename"
 }
 
-die() {
+die()
+{
 	printf "dlthumb: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: dlthumb [ -h ] [ -o FILENAME ] VIDEO_ID
 	echo Options are:
 	echo '     -o | --output                  specify the name of the output file'

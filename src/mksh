@@ -5,7 +5,8 @@
 # using a template file
 #
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o h -l help -n 'mksh' -- "$@")
 	getopt_exit_code=$?
 
@@ -37,7 +38,8 @@ main() {
 	cat <<EOF > "$filename"
 #!/bin/sh
 
-main() {
+main()
+{
 	parsed_args=\$(getopt -o h -l help -n '$filename' -- "\$@")
 	getopt_exit_code=\$?
 
@@ -56,12 +58,14 @@ main() {
 	done
 }
 
-die() {
+die()
+{
 	printf "$filename: %s\\n" "\$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: $filename [ -h ]
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'
@@ -73,12 +77,14 @@ EOF
 	chmod +x "$filename"
 }
 
-die() {
+die()
+{
 	printf "mksh: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: mksh [ -h ] FILENAME
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'

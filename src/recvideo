@@ -18,7 +18,8 @@ fps=60
 
 trap '' INT
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o gd:w:sh -l gif,duration:,wait:,selection,help -n 'recvideo' -- "$@")
 	getopt_exit_code=$?
 
@@ -83,12 +84,14 @@ main() {
 	fi
 }
 
-die() {
+die()
+{
 	printf "recvideo: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: recvideo [ -gsh ] [ -d DURATION ] [ -w WAITSECONDS ]
 	echo Options are:
 	echo '     -g | --gif                     convert the video to gif'

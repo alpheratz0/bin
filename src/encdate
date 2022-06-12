@@ -5,7 +5,8 @@
 # of a video
 #
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o h -l help -n 'encdate' -- "$@")
 	getopt_exit_code=$?
 
@@ -45,12 +46,14 @@ main() {
 		awk 'BEGIN { FS="[- :]" } { print $6$7$8$9$10$11 }'
 }
 
-die() {
+die()
+{
 	printf "encdate: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: encdate [ -h ] FILENAME
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'

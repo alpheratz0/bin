@@ -1,6 +1,7 @@
 #!/bin/sh
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o hsSr -l start,stop,restart,help -n 'polybarctl' -- "$@")
 	getopt_exit_code=$?
 
@@ -26,26 +27,31 @@ main() {
 	done
 }
 
-start_polybar() {
+start_polybar()
+{
 	nohup polybar -c "$HOME/.config/polybar/config" top >/tmp/polybar_top.log 2>&1 &
 	nohup polybar -c "$HOME/.config/polybar/config" bottom >/tmp/polybar_bottom.log 2>&1 &
 }
 
-stop_polybar() {
+stop_polybar()
+{
 	killall -q polybar 2>/dev/null
 }
 
-restart_polybar() {
+restart_polybar()
+{
 	stop_polybar
 	start_polybar
 }
 
-die() {
+die()
+{
 	printf "polybarctl: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: polybarctl [ -hsSr ]
 	echo Options are:
 	echo '     -s | --start                   start polybar'

@@ -5,7 +5,8 @@
 # hexadecimal characters
 #
 
-main() {
+main()
+{
 	if [ -n "$1" ] ; then
 		case "$1" in
 			-h | --help ) show_help; exit 1 ;;
@@ -26,12 +27,14 @@ main() {
 	head -c "$length" /dev/random | od -An -w2 -t x1 - | tr -d ' ' | tr -d '\n' | head -c "$length"
 }
 
-die() {
+die()
+{
 	printf "rand: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: rand [ -h ] [ -LENGTH ]
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'

@@ -5,7 +5,8 @@
 # the specified command
 #
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o h -l help -n 'exode' -- "$@")
 	getopt_exit_code=$?
 
@@ -32,12 +33,14 @@ main() {
 	echo $?
 }
 
-die() {
+die()
+{
 	printf "exode: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: exode [ -h ]
 	echo Options are:
 	echo '     -h | --help                    display this message and exit'

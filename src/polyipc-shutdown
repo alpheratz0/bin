@@ -12,7 +12,8 @@ fgcolor='ffffff'
 opt_default=false
 opt_current=false
 
-main() {
+main()
+{
 	parsed_args=$(getopt -o p:DCc:h -l pid:,default,current,countdown:,help -n 'polyipc-shutdown' -- "$@")
 	getopt_exit_code=$?
 
@@ -56,17 +57,20 @@ main() {
 	fi
 }
 
-show_default() {
+show_default()
+{
 	echo "%{A1:polyipc-shutdown --countdown 10 --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}  ⏻  %{A}"
 	exit 0
 }
 
-show_current() {
+show_current()
+{
 	cat /tmp/shutdown
 	exit 0
 }
 
-start_shutdown() {
+start_shutdown()
+{
 	# to prevent misclicks
 	notify-send 'warning' 'the computer will shutdown in 10 seconds'
 
@@ -88,18 +92,21 @@ start_shutdown() {
 	systemctl poweroff
 }
 
-cancel_shutdown() {
+cancel_shutdown()
+{
 	/bin/kill -s KILL "$(cat /tmp/shutdown.pid)"
 	rm /tmp/shutdown.pid
 	polybar-msg -p "$barpid" hook shutdown 1
 }
 
-die() {
+die()
+{
 	printf "polyipc-shutdown: %s\n" "$@" >&2
 	exit 1
 }
 
-show_help() {
+show_help()
+{
 	echo Usage: polyipc-shutdown [ -hDC ] [ -p POLYBAR_PID ] [ -c COUNTDOWN ]
 	echo Options are:
 	echo '     -p | --pid                     polybar bar process id'
