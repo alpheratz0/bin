@@ -4,10 +4,10 @@ shell scripts that i wrote
 
 local install/uninstall
 =======================
-$ PREFIX="$HOME/.local" ./install.sh
-$ PREFIX="$HOME/.local" ./uninstall.sh
+$ PREFIX="$HOME/.local" scripts/install.sh
+$ PREFIX="$HOME/.local" scripts/uninstall.sh
 
 global install/uninstall
 ========================
-# ./install.sh
-# ./uninstall.sh
+# scripts/install.sh
+# scripts/uninstall.sh
