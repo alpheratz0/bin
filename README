@@ -2,6 +2,12 @@ bin
 ===
 shell scripts that i wrote
 
-install
-=======
-$ sudo make install
+local install/uninstall
+=======================
+$ PREFIX="$HOME/.local" ./install.sh
+$ PREFIX="$HOME/.local" ./uninstall.sh
+
+global install/uninstall
+========================
+# ./install.sh
+# ./uninstall.sh
