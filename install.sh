@@ -13,4 +13,3 @@ for f in *; do
 	cp "${f}" "${DESTDIR}${PREFIX}/bin"
 	chmod 755 "${DESTDIR}${PREFIX}/bin/${f}"
 done
-
