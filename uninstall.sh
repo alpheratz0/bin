@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/sh -e
 
 if test -z "${PREFIX}"; then
 	PREFIX=/usr/local
 fi
 
-cd src || exit
+cd src
 
 for f in *; do
 	if test -O "${DESTDIR}${PREFIX}/bin/${f}"; then
