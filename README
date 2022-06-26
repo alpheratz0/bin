@@ -1,13 +1,10 @@
-bin
-===
-shell scripts that i wrote
+]|~ bin ~|[
 
-local install/uninstall
-=======================
-$ PREFIX="$HOME/.local" scripts/install.sh
-$ PREFIX="$HOME/.local" scripts/uninstall.sh
+Util shell scripts that I wrote.
 
-global install/uninstall
-========================
-# scripts/install.sh
-# scripts/uninstall.sh
+]|~ license ~|[
+
+This program is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License
+version 2 as published by the Free Software Foundation.
+See LICENSE for more details.
