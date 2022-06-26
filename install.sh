@@ -6,10 +6,11 @@ fi
 
 cd src
 
-mkdir -p ${PREFIX}/bin
+mkdir -p "${DESTDIR}${PREFIX}/bin"
 
 for f in *; do
 	echo "installing ${f}..."
-	install -m755 -t "${DESTDIR}${PREFIX}/bin" "$f"
+	cp "${f}" "${DESTDIR}${PREFIX}/bin"
+	chmod 755 "${DESTDIR}${PREFIX}/bin/${f}"
 done
 

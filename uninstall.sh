@@ -7,10 +7,10 @@ fi
 cd src || exit
 
 for f in *; do
-	if test -O "${DESTDIR}${PREFIX}/bin/$f"; then
-		if cmp -s "$f" "${DESTDIR}${PREFIX}/bin/$f"; then
+	if test -O "${DESTDIR}${PREFIX}/bin/${f}"; then
+		if cmp -s "${f}" "${DESTDIR}${PREFIX}/bin/${f}"; then
 			echo "uninstalling ${f}..."
-			rm -f "${DESTDIR}${PREFIX}/bin/$f"
+			rm -f "${DESTDIR}${PREFIX}/bin/${f}"
 		fi
 	fi
 done
