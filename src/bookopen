@@ -25,7 +25,7 @@ main()
 		die 'path cannot be empty'
 
 	find "$path" -maxdepth 1 -type f |
-		rev | cut -d '/' -f1 | rev | rofi -dmenu |
+		rev | cut -d '/' -f1 | rev | sort | rofi -dmenu |
 		xargs -I{} sh -c "test -f '${path}/{}' && zathura '${path}/{}'"
 
 }
