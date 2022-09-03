@@ -1,12 +1,12 @@
 #!/bin/sh
 
 #
-# mount and umount
+# mount and unmount
 # my backup partition
 #
 
 opt_mount=false
-opt_umount=false
+opt_unmount=false
 uuid='f69c82e2-0a9e-4197-ad67-13aa6450ad03'
 
 main()
@@ -24,19 +24,19 @@ main()
 		case "$1" in
 			-h ) usage ;;
 			-m ) opt_mount=true; shift ;;
-			-u ) opt_umount=true; shift ;;
+			-u ) opt_unmount=true; shift ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
 
 	$opt_mount ||
-		$opt_umount ||
-			die 'mount or umount option must be specified'
+		$opt_unmount ||
+			die 'mount or unmount option must be specified'
 
 	$opt_mount &&
-		$opt_umount &&
-			die 'mount and umount options are mutually exclusive'
+		$opt_unmount &&
+			die 'mount and unmount options are mutually exclusive'
 
 	lsblk -o UUID | grep -qE "^$uuid$" ||
 		die 'storage device is not connected'
