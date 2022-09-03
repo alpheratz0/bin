@@ -11,7 +11,7 @@ trap '' INT
 
 main()
 {
-	parsed_args=$(getopt -o ih -l interactive,help -n 'recaudio' -- "$@")
+	parsed_args=$(getopt -o hi -n 'recaudio' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -22,8 +22,8 @@ main()
 
 	while :; do
 		case "$1" in
-			-h | --help ) show_help; exit 1 ;;
-			-i | --interactive ) opt_interactive=true; shift 1 ;;
+			-h ) usage ;;
+			-i ) opt_interactive=true; shift 1 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -57,12 +57,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: recaudio [ -ih ] SOURCE
-	echo Options are:
-	echo '     -i | --interactive             select the audio source interactively'
-	echo '     -h | --help                    display this message and exit'
+	echo usage: recaudio [-hi] source
+	exit 0
 }
 
 main "$@"

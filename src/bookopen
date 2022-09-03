@@ -2,7 +2,7 @@
 
 main()
 {
-	parsed_args=$(getopt -o h -l help -n 'bookopen' -- "$@")
+	parsed_args=$(getopt -o h -n 'bookopen' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -13,21 +13,20 @@ main()
 
 	while :; do
 		case "$1" in
-			-h | --help ) show_help; exit 1 ;;
+			-h ) usage ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
 	done
 
-	path="$1"
+	dir="$1"
 
-	[ -z "$path" ] &&
-		die 'path cannot be empty'
+	[ -z "$dir" ] &&
+		die 'you must specify a directory'
 
-	find "$path" -maxdepth 1 -type f |
+	find "$dir" -maxdepth 1 -type f |
 		rev | cut -d '/' -f1 | rev | sort | rofi -dmenu |
-		xargs -I{} sh -c "test -f '${path}/{}' && zathura '${path}/{}'"
-
+		xargs -I{} sh -c "test -f '${dir}/{}' && zathura '${dir}/{}'"
 }
 
 die()
@@ -36,11 +35,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: bookopen [ -h ] LIBRARY_PATH
-	echo Options are:
-	echo '     -h | --help                    display this message and exit'
+	echo usage: bookopen [-h] dir
+	exit 0
 }
 
 main "$@"

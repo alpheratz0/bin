@@ -9,7 +9,7 @@ opt_list=false
 
 main()
 {
-	parsed_args=$(getopt -o lh -l list,help -n 'psound' -- "$@")
+	parsed_args=$(getopt -o hl -n 'psound' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -20,8 +20,8 @@ main()
 
 	while :; do
 		case "$1" in
-			-h | --help ) show_help; exit 1 ;;
-			-l | --list ) opt_list=true; shift ;;
+			-h ) usage ;;
+			-l ) opt_list=true; shift ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -69,12 +69,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: psound [ -hl ] QUERY VOLUME
-	echo Options are:
-	echo '     -l | --list                    list all the sound sources'
-	echo '     -h | --help                    display this message and exit'
+	echo usage: psound [-hl] query volume
+	exit 0
 }
 
 main "$@"

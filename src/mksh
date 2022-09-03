@@ -7,7 +7,7 @@
 
 main()
 {
-	parsed_args=$(getopt -o h -l help -n 'mksh' -- "$@")
+	parsed_args=$(getopt -o h -n 'mksh' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -18,7 +18,7 @@ main()
 
 	while :; do
 		case "$1" in
-			-h | --help ) show_help; exit 1 ;;
+			-h ) usage ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -40,7 +40,7 @@ main()
 
 main()
 {
-	parsed_args=\$(getopt -o h -l help -n '$filename' -- "\$@")
+	parsed_args=\$(getopt -o h -n '$filename' -- "\$@")
 	getopt_exit_code=\$?
 
 	if [ \$getopt_exit_code -ne 0 ]; then
@@ -51,7 +51,7 @@ main()
 
 	while :; do
 		case "\$1" in
-			-h | --help ) show_help; exit 1 ;;
+			-h ) usage ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -64,11 +64,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: $filename [ -h ]
-	echo Options are:
-	echo '     -h | --help                    display this message and exit'
+	echo usage: $filename [-h]
+	exit 0
 }
 
 main "\$@"
@@ -83,11 +82,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: mksh [ -h ] FILENAME
-	echo Options are:
-	echo '     -h | --help                    display this message and exit'
+	echo usage: mksh [-h] script_name
+	exit 0
 }
 
 main "$@"

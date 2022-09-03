@@ -12,7 +12,7 @@ outdir="$HOME/.screenshots"
 
 main()
 {
-	parsed_args=$(getopt -o ah -l area,help -n 'screenshot' -- "$@")
+	parsed_args=$(getopt -o ah -n 'screenshot' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -23,8 +23,8 @@ main()
 
 	while :; do
 		case "$1" in
-			-a | --area ) opt_area=true; shift ;;
-			-h | --help ) show_help; exit 1 ;;
+			-a ) opt_area=true; shift ;;
+			-h ) usage ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -51,12 +51,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: screenshot [ -ah ]
-	echo Options are:
-	echo '     -a | --area                    take an area screenshot instead of the full screen'
-	echo '     -h | --help                    display this message and exit'
+	echo usage: screenshot [-ah]
+	exit 0
 }
 
 main "$@"

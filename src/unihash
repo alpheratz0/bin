@@ -12,7 +12,7 @@ directory='.'
 
 main()
 {
-	parsed_args=$(getopt -o Pqh -l no-prompt,quiet,help -n 'unihash' -- "$@")
+	parsed_args=$(getopt -o Pqh -n 'unihash' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -23,9 +23,9 @@ main()
 
 	while :; do
 		case "$1" in
-			-P | --no-prompt ) opt_prompt=false; shift ;;
-			-q | --quiet ) opt_quiet=true; shift ;;
-			-h | --help ) show_help; exit 1 ;;
+			-P ) opt_prompt=false; shift ;;
+			-h ) usage ;;
+			-q ) opt_quiet=true; shift ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -94,13 +94,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: unihash [ -Pqh ] DIRECTORY
-	echo Options are:
-	echo '     -P | --no-prompt               disable the prompt of a random number'
-	echo '     -q | --quiet                   run the program silently'
-	echo '     -h | --help                    display this message and exit'
+	echo usage: unihash [-Phq] dir
+	exit 0
 }
 
 main "$@"

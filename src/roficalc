@@ -7,7 +7,7 @@
 
 main()
 {
-	parsed_args=$(getopt -o h -l help -n 'roficalc' -- "$@")
+	parsed_args=$(getopt -o h -n 'roficalc' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -18,7 +18,7 @@ main()
 
 	while :; do
 		case "$1" in
-			-h | --help ) show_help; exit 1 ;;
+			-h ) usage ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -35,11 +35,10 @@ main()
 		 -hint-result ''
 }
 
-show_help()
+usage()
 {
-	echo Usage: roficalc [ -h ]
-	echo Options are:
-	echo '     -h | --help                    display this message and exit'
+	echo usage: roficalc [-h]
+	exit 0
 }
 
 main "$@"

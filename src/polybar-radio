@@ -14,7 +14,7 @@ fgcolor="000000"
 htcolor="ff0000"
 
 
-datadir="$XDG_DATA_HOME/polyipc-radio"
+datadir="$XDG_DATA_HOME/polybar-radio"
 radhistfile="$datadir/history"
 radfavfile="$datadir/favs"
 
@@ -33,7 +33,7 @@ opt_volume_down=false
 
 main()
 {
-	parsed_args=$(getopt -o CDudlp:h -l current,default,up,down,like,pid:,help -n 'polyipc-radio' -- "$@")
+	parsed_args=$(getopt -o CDudlp:h -n 'polybar-radio' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -44,13 +44,13 @@ main()
 
 	while :; do
 		case "$1" in
-			-C | --current ) opt_current=true; shift ;;
-			-D | --default ) opt_default=true; shift ;;
-			-u | --up ) opt_volume_up=true; shift ;;
-			-d | --down ) opt_volume_down=true; shift ;;
-			-l | --like ) opt_like=true; shift ;;
-			-p | --pid ) barpid=$2; shift 2 ;;
-			-h | --help ) show_help; exit 1 ;;
+			-C ) opt_current=true; shift ;;
+			-D ) opt_default=true; shift ;;
+			-u ) opt_volume_up=true; shift ;;
+			-d ) opt_volume_down=true; shift ;;
+			-l ) opt_like=true; shift ;;
+			-p ) barpid=$2; shift 2 ;;
+			-h ) usage ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -152,9 +152,9 @@ volume_down()
 
 start_radio()
 {
-	mpv --volume=60 --input-ipc-server=/tmp/radiosocket -title='polyipc-radio' --no-video "$(get_radio)" 2>/dev/null | {
+	mpv --volume=60 --input-ipc-server=/tmp/radiosocket -title='polybar-radio' --no-video "$(get_radio)" 2>/dev/null | {
 		echo $! > /tmp/radio.pid
-		radmsg "%{A1:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Loading...  %{F-}%{B-}%{A}"
+		radmsg "%{A1:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Loading...  %{F-}%{B-}%{A}"
 
 		while read -r line; do
 			heart=''
@@ -172,9 +172,9 @@ start_radio()
 			grep -qF "$song" "$radfavfile" &&
 				heart=''
 
-			heartmsg="%{A1:polyipc-radio --like --pid $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
-			songmsg="%{A3:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}ﱘ%{T-}  $song  $heartmsg%{A}"
-			fullmsg="%{A5:polyipc-radio --down --pid $barpid:}%{A4:polyipc-radio --up --pid $barpid:}$songmsg%{A}%{A}"
+			heartmsg="%{A1:polybar-radio -l -p $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
+			songmsg="%{A3:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}ﱘ%{T-}  $song  $heartmsg%{A}"
+			fullmsg="%{A5:polybar-radio -d -p $barpid:}%{A4:polybar-radio -u -p $barpid:}$songmsg%{A}%{A}"
 
 			radmsg "$fullmsg"
 		done
@@ -190,7 +190,7 @@ stop_radio()
 
 show_default()
 {
-	echo "%{A1:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Play  %{F-}%{B-}%{A}"
+	echo "%{A1:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Play  %{F-}%{B-}%{A}"
 	exit 0
 }
 
@@ -213,9 +213,9 @@ like_song()
 		echo "$song" >> "$radfavfile"
 	fi
 
-	heartmsg="%{A1:polyipc-radio --like --pid $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
-	songmsg="%{A3:polyipc-radio --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}ﱘ%{T-}  $song  $heartmsg%{A}"
-	fullmsg="%{A5:polyipc-radio --down --pid $barpid:}%{A4:polyipc-radio --up --pid $barpid:}$songmsg%{A}%{A}"
+	heartmsg="%{A1:polybar-radio -l -p $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
+	songmsg="%{A3:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}ﱘ%{T-}  $song  $heartmsg%{A}"
+	fullmsg="%{A5:polybar-radio -d -p $barpid:}%{A4:polybar-radio -u -p $barpid:}$songmsg%{A}%{A}"
 
 	radmsg "$fullmsg"
 
@@ -228,17 +228,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: polyipc-radio [ -hlduCD ] [ -p POLYBAR_PID ]
-	echo Options are:
-	echo '     -p | --pid                     polybar bar process id'
-	echo '     -D | --default                 show default message'
-	echo '     -C | --current                 show current message'
-	echo '     -u | --up                      increase the volume of the mpv player'
-	echo '     -d | --down                    decrease the volume of the mpv player'
-	echo '     -l | --like                    toggle current song like status'
-	echo '     -h | --help                    display this message and exit'
+	echo usage: polybar-radio [-CDdhlu] [-p pid]
+	exit 0
 }
 
 main "$@"

@@ -1,0 +1,59 @@
+#!/bin/sh
+
+main()
+{
+	parsed_args=$(getopt -o hsSr -n 'polybar-ctl' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0 ]; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args"
+
+	if [ $# -eq 1 ]; then
+		usage;
+		exit 1;
+	fi
+
+	while :; do
+		case "$1" in
+			-s ) start_polybar; exit 0 ;;
+			-S ) stop_polybar; exit 0 ;;
+			-r ) restart_polybar; exit 0 ;;
+			-h ) usage ;;
+			* ) die 'invalid option' ;;
+		esac
+	done
+}
+
+start_polybar()
+{
+	nohup polybar -c "$HOME/.config/polybar/config" top >/tmp/polybar_top.log 2>&1 &
+	nohup polybar -c "$HOME/.config/polybar/config" bottom >/tmp/polybar_bottom.log 2>&1 &
+}
+
+stop_polybar()
+{
+	killall -q polybar 2>/dev/null
+}
+
+restart_polybar()
+{
+	stop_polybar
+	start_polybar
+}
+
+die()
+{
+	printf "polybar-ctl: %s\n" "$@" >&2
+	exit 1
+}
+
+usage()
+{
+	echo usage: polybar-ctl [-hsSr]
+	exit 0
+}
+
+main "$@"

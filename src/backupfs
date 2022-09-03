@@ -11,7 +11,7 @@ uuid='f69c82e2-0a9e-4197-ad67-13aa6450ad03'
 
 main()
 {
-	parsed_args=$(getopt -o muh -l mount,umount,help -n 'backupfs' -- "$@")
+	parsed_args=$(getopt -o hmu -n 'backupfs' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -22,9 +22,9 @@ main()
 
 	while :; do
 		case "$1" in
-			-m | --mount ) opt_mount=true; shift ;;
-			-u | --umount ) opt_umount=true; shift ;;
-			-h | --help ) show_help; exit 1 ;;
+			-h ) usage ;;
+			-m ) opt_mount=true; shift ;;
+			-u ) opt_umount=true; shift ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -64,13 +64,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: backupfs [ -muh ]
-	echo Options are:
-	echo '     -m | --mount                   mount the backup partition'
-	echo '     -u | --umount                  umount the backup partition'
-	echo '     -h | --help                    display this message and exit'
+	echo usage: backupfs [-hmu]
+	exit 0
 }
 
 main "$@"

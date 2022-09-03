@@ -14,7 +14,7 @@ opt_current=false
 
 main()
 {
-	parsed_args=$(getopt -o p:DCc:h -l pid:,default,current,countdown:,help -n 'polyipc-shutdown' -- "$@")
+	parsed_args=$(getopt -o p:DCc:h -n 'polybar-shutdown' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -25,11 +25,11 @@ main()
 
 	while :; do
 		case "$1" in
-			-C | --current ) opt_current=true; shift ;;
-			-D | --default ) opt_default=true; shift ;;
-			-p | --pid ) barpid=$2; shift 2 ;;
-			-c | --countdown ) countdown=$2; shift 2 ;;
-			-h | --help ) show_help; exit 1 ;;
+			-C ) opt_current=true; shift ;;
+			-D ) opt_default=true; shift ;;
+			-p ) barpid=$2; shift 2 ;;
+			-c ) countdown=$2; shift 2 ;;
+			-h ) usage ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -59,7 +59,7 @@ main()
 
 show_default()
 {
-	echo "%{A1:polyipc-shutdown --countdown 10 --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}  ⏻  %{A}"
+	echo "%{A1:polybar-shutdown -c 10 -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  ⏻  %{A}"
 	exit 0
 }
 
@@ -81,7 +81,7 @@ start_shutdown()
 	echo $$ > /tmp/shutdown.pid
 
 	for i in $(seq $countdown -1 1); do
-		echo "%{A1:polyipc-shutdown --countdown 10 --pid $barpid:}%{B#$bgcolor}%{F#$fgcolor}  祥 ${i}s  %{A}" > /tmp/shutdown
+		echo "%{A1:polybar-shutdown -c 10 -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  祥 ${i}s  %{A}" > /tmp/shutdown
 		polybar-msg -p "$barpid" hook shutdown 2
 		sleep 1
 	done
@@ -101,19 +101,14 @@ cancel_shutdown()
 
 die()
 {
-	printf "polyipc-shutdown: %s\n" "$@" >&2
+	printf "polybar-shutdown %s\n" "$@" >&2
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: polyipc-shutdown [ -hDC ] [ -p POLYBAR_PID ] [ -c COUNTDOWN ]
-	echo Options are:
-	echo '     -p | --pid                     polybar bar process id'
-	echo '     -D | --default                 show default message'
-	echo '     -C | --current                 show current message'
-	echo '     -c | --countdown               seconds to wait before actually shutting down'
-	echo '     -h | --help                    display this message and exit'
+	echo usage: polybar-shutdown [-DCh] [-p pid] [-c seconds]
+	exit 0
 }
 
 main "$@"

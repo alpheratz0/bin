@@ -20,7 +20,7 @@ trap '' INT
 
 main()
 {
-	parsed_args=$(getopt -o gd:w:sh -l gif,duration:,wait:,selection,help -n 'recvideo' -- "$@")
+	parsed_args=$(getopt -o ghsd:w: -n 'recvideo' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -31,11 +31,11 @@ main()
 
 	while :; do
 		case "$1" in
-			-g | --gif ) opt_gif=true; fps=20; shift ;;
-			-d | --duration ) opt_duration=true; duration="$2"; shift 2 ;;
-			-w | --wait ) opt_wait=true; waitseconds="$2"; shift 2 ;;
-			-s | --selection ) opt_selection=true; shift ;;
-			-h | --help ) show_help; exit 1 ;;
+			-g ) opt_gif=true; fps=20; shift ;;
+			-h ) usage ;;
+			-s ) opt_selection=true; shift ;;
+			-d ) opt_duration=true; duration="$2"; shift 2 ;;
+			-w ) opt_wait=true; waitseconds="$2"; shift 2 ;;
 			-- ) shift; break ;;
 			* ) break ;;
 		esac
@@ -90,15 +90,10 @@ die()
 	exit 1
 }
 
-show_help()
+usage()
 {
-	echo Usage: recvideo [ -gsh ] [ -d DURATION ] [ -w WAITSECONDS ]
-	echo Options are:
-	echo '     -g | --gif                     convert the video to gif'
-	echo '     -s | --selection               select the area of the screen to record'
-	echo '     -d | --duration                specify the length of the clip'
-	echo '     -w | --wait                    wait X seconds before recording'
-	echo '     -h | --help                    display this message and exit'
+	echo usage: recvideo [-ghs] [-d seconds] [-w seconds]
+	exit 0
 }
 
 main "$@"
