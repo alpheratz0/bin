@@ -1,0 +1,27 @@
+.Dd September 3, 2022
+.Dt POLYBAR-SHUTDOWN 1
+.Sh NAME
+.Nm polybar-shutdown
+.Nd cancellable shutdown ipc for polybar
+.Sh SYNOPSIS
+.Nm
+.Op Fl DCh
+.Op Fl p Ar pid
+.Op Fl c Ar seconds
+.Sh OPTIONS
+.Bl -tag -width indent
+.It Fl D
+show default message
+.It Fl C
+show current message
+.It Fl h
+show usage
+.It Fl p
+specify the polybar process id
+.It Fl c
+seconds to wait before actually shutting down
+.El
+.Sh AUTHORS
+.An alpheratz0 Aq Mt alpheratz99@protonmail.com
+.Sh BUGS
+https://github.com/alpheratz0/bin/issues

@@ -1,0 +1,27 @@
+.Dd September 3, 2022
+.Dt RECVIDEO 1
+.Sh NAME
+.Nm recvideo
+.Nd record the full screen or the selected area
+.Sh SYNOPSIS
+.Nm
+.Op Fl ghs
+.Op Fl d Ar seconds
+.Op Fl w Ar seconds
+.Sh OPTIONS
+.Bl -tag -width indent
+.It Fl g
+output a gif instead of a video file
+.It Fl h
+show usage
+.It Fl s
+select the area of the screen to record
+.It Fl d
+specify the length of the clip
+.It Fl w
+wait X seconds before recording
+.El
+.Sh AUTHORS
+.An alpheratz0 Aq Mt alpheratz99@protonmail.com
+.Sh BUGS
+https://github.com/alpheratz0/bin/issues
