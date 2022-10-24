@@ -7,7 +7,6 @@
 #
 
 opt_area=false
-format="%Y%m%d%H%M%S.png"
 outdir="$HOME/.screenshots"
 
 main()
@@ -34,15 +33,19 @@ main()
 		mkdir "$outdir"
 
 	if $opt_area; then
-		area=$(slop --quiet --format="%x,%y,%w,%h") ||
-			die 'selection cancelled'
-		notification_cmd="notify-send 'area screenshot taken' 'file name: \$f'"
-		scrot -d 1 -z "$format" -a "$area" -e "mv \$f $outdir && $notification_cmd" 2>/dev/null
+		area=$(slop --quiet) || die 'selection cancelled'
+		temp_dir=$(mktemp -d)
+		ss=$(xscreenshot -d "$temp_dir" -p)
+		ss_name=$(basename "$ss")
+		pngcrop "$area" "$ss" "$outdir/$ss_name"
+		notify-send 'area screenshot taken' "file name: $ss_name"
+		rm "$ss"
+		rmdir "$temp_dir"
 		exit 0
 	fi
 
-	notification_cmd="notify-send 'screenshot taken' 'file name: \$f'"
-	scrot -z "$format" -e "mv \$f $outdir && $notification_cmd"
+	ss_name=$(basename "$(xscreenshot -d "$outdir" -p)")
+	notify-send 'screenshot taken' "file name: $ss_name"
 }
 
 die()
