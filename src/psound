@@ -47,18 +47,10 @@ main()
 	[ "$volume" -lt 0 ] &&
 		volume=0
 
-	match=$(
-		pasid | cut -d '-' -f2- | grep -o '[^ ].*' |
-		grep -iF "$query" |
-		head -n1
-	)
+	sinkid=$(pasid -q "$query")
 
-	[ -z "$match" ] &&
+	[ -z "$sinkid" ] &&
 		die 'search query didnt match any application'
-
-	sinkid=$(
-		pasid | grep -F "$match" | head -n1 | awk '{ print $1 }'
-	)
 
 	pactl set-sink-input-volume "$sinkid" "$volume%"
 }
