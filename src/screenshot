@@ -35,7 +35,7 @@ main()
 	if $opt_area; then
 		area=$(slop --quiet) || die 'selection cancelled'
 		temp_dir=$(mktemp -d)
-		ss=$(xscreenshot -d "$temp_dir" -p)
+		ss=$(xscreenshot -c -d "$temp_dir" -p)
 		ss_name=$(basename "$ss")
 		pngcrop "$area" -i "$ss" -o "$outdir/$ss_name"
 		notify-send 'area screenshot taken' "file name: $ss_name"
@@ -44,7 +44,7 @@ main()
 		exit 0
 	fi
 
-	ss_name=$(basename "$(xscreenshot -d "$outdir" -p)")
+	ss_name=$(basename "$(xscreenshot -c -d "$outdir" -p)")
 	notify-send 'screenshot taken' "file name: $ss_name"
 }
 
