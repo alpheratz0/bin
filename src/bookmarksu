@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# inspired by: https://github.com/harshvchawla/convert-links-to-bookmarks
+
+parsed_args=$(getopt -o eth -l extract,titles,help -n 'bookmarksu' -- "$@")
+getopt_exit_code=$?
+
+if [ $getopt_exit_code -ne 0 ] ; then
+	exit 1
+fi
+
+eval set -- "$parsed_args"
+
+OPT_TITLES=false
+OPT_EXTRACT=false
+
+function show_help() {
+	echo 'Usage: bookmarksu [ -h ] [ -et ] bookmarks...                                '
+	echo 'Options are:                                                                 '
+	echo '     -e | --extract                 extract all links from bookmarks file    '
+	echo '     -t | --titles                  resolve website title using wget         '
+	echo '     -h | --help                    display this message and exit            '
+	echo '                                                                             '
+	echo 'When no options are passed all bookmark files are merged into a single one   '
+	echo 'removing all duplicates.                                                     '
+}
+
+while :; do
+	case "$1" in
+		-t | --titles ) OPT_TITLES=true; shift 1 ;;
+		-e | --extract ) OPT_EXTRACT=true; shift 1 ;;
+		-h | --help ) show_help; exit 1 ;;
+		-- ) shift; break ;;
+		* ) break ;;
+	esac
+done
+
+function extract_links() {
+	local file_location="$1"
+	if grep -iq '<dl>' "$file_location"; then
+		grep -io 'HREF=".*"' "$file_location" | cut -d\" -f2
+	else 
+		grep . "$file_location" 
+	fi
+}
+
+function query_title() {
+	local url="$@"
+	local title="$(wget -t1 -T1 -qO- "$url" | grep -io '<title>.*</title>' | head -n1 | cut -d\> -f2 | cut -d\< -f1)"
+	[ -z "$title" ] && echo "$url" || echo "$title"
+}
+
+(for i in "$@"; do extract_links "$i"; done;) | sort | uniq | (
+	if $OPT_EXTRACT; then
+		cat /dev/stdin
+		exit 0
+	fi
+
+	if $OPT_TITLES; then
+		echo '<DL>'
+		while read url; do
+			printf "\t<DT><A HREF=\"%s\">%s</A>\n" "$url" "$(query_title $url)"
+		done
+		echo '</DL>'
+		exit 0
+	fi
+
+	# default
+	echo '<DL>'
+	while read url; do
+		printf "\t<DT><A HREF=\"%s\">%s</A>\n" "$url" "$url"
+	done
+	echo '</DL>'
+)
