@@ -6,6 +6,21 @@ fi
 
 MANPREFIX="${PREFIX}/share/man"
 
+num_bins=$(find src -type f | wc -l)
+num_manp=$(find man -type f | wc -l)
+
+if [ "$1" != "-noprompt" ]; then
+	printf "Are you sure you want to install:\n    * %d binaries to %s\n    * %d man pages to %s\n? [Y/n]: " \
+		"${num_bins}" "${DESTDIR}${PREFIX}/bin" \
+		"${num_manp}" "${DESTDIR}${MANPREFIX}/man1"
+
+	read -r ans
+
+	if [ "$ans" != "Y" ]; then
+		exit 0
+	fi
+fi
+
 cd src
 
 mkdir -p "${DESTDIR}${PREFIX}/bin"
