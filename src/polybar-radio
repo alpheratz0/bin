@@ -157,7 +157,7 @@ start_radio()
 		radmsg "%{A1:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Loading...  %{F-}%{B-}%{A}"
 
 		while read -r line; do
-			heart=''
+			heart='󱢠'
 			timestamp=$(date +'%Y %b %d %H:%M')
 			song=$(get_title "$line")
 
@@ -170,10 +170,10 @@ start_radio()
 				echo "$timestamp ➜  $song" >> "$radhistfile"
 
 			grep -qF "$song" "$radfavfile" &&
-				heart=''
+				heart='󰣐'
 
 			heartmsg="%{A1:polybar-radio -l -p $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
-			songmsg="%{A3:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}ﱘ%{T-}  $song  $heartmsg%{A}"
+			songmsg="%{A3:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
 			fullmsg="%{A5:polybar-radio -d -p $barpid:}%{A4:polybar-radio -u -p $barpid:}$songmsg%{A}%{A}"
 
 			radmsg "$fullmsg"
@@ -190,7 +190,7 @@ stop_radio()
 
 show_default()
 {
-	echo "%{A1:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Play  %{F-}%{B-}%{A}"
+	echo "%{A1:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  󰐊 Play  %{F-}%{B-}%{A}"
 	exit 0
 }
 
@@ -205,16 +205,16 @@ like_song()
 	song="$(cat /tmp/radiosong)"
 
 	if grep -qF "$song" "$radfavfile"; then
-		heart=''
+		heart='󱢠'
 		newlist=$(grep -v -F "$song" "$radfavfile")
 		echo "$newlist" > "$radfavfile"
 	else
-		heart=''
+		heart='󰣐'
 		echo "$song" >> "$radfavfile"
 	fi
 
 	heartmsg="%{A1:polybar-radio -l -p $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
-	songmsg="%{A3:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}ﱘ%{T-}  $song  $heartmsg%{A}"
+	songmsg="%{A3:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
 	fullmsg="%{A5:polybar-radio -d -p $barpid:}%{A4:polybar-radio -u -p $barpid:}$songmsg%{A}%{A}"
 
 	radmsg "$fullmsg"

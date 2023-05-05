@@ -59,7 +59,7 @@ main()
 
 show_default()
 {
-	echo "%{A1:polybar-shutdown -c 10 -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  ⏻  %{A}"
+	echo "%{A1:polybar-shutdown -c 10 -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  󰐥  %{A}"
 	exit 0
 }
 
@@ -81,7 +81,7 @@ start_shutdown()
 	echo $$ > /tmp/shutdown.pid
 
 	for i in $(seq $countdown -1 1); do
-		echo "%{A1:polybar-shutdown -c 10 -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  祥 ${i}s  %{A}" > /tmp/shutdown
+		echo "%{A1:polybar-shutdown -c 10 -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  󰔛 ${i}s  %{A}" > /tmp/shutdown
 		polybar-msg -p "$barpid" hook shutdown 2
 		sleep 1
 	done
