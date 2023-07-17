@@ -2,7 +2,8 @@
 
 #
 # get the encoded date
-# of a video
+# of a video in a nice and
+# sortable format
 #
 
 main()
