@@ -47,7 +47,7 @@ main()
 
 		sudo mount --uuid "$uuid" /back
 		sudo chmod 777 /back
-		sudo chown alpheratz:alpheratz /back
+		sudo chown "$USER:$USER" /back
 		exit 0
 	fi
 
