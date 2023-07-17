@@ -45,6 +45,7 @@ main()
 		lsblk -o UUID,MOUNTPOINTS | grep -qE "^$uuid\s$" ||
 			die 'partition is already mounted'
 
+		sudo mkdir -p /back
 		sudo mount --uuid "$uuid" /back
 		sudo chmod 777 /back
 		sudo chown "$USER:$USER" /back
