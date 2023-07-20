@@ -1,0 +1,92 @@
+#!/bin/sh
+
+#
+# record audio output and
+# the full screen or selected area
+#
+
+ffmpeg_sizpos_flags='-i :0.0'
+ffmpeg_duration_flag=''
+
+opt_duration=false
+opt_wait=false
+opt_selection=false
+duration=1
+waitseconds=1
+fps=60
+
+trap '' INT
+
+main()
+{
+	parsed_args=$(getopt -o hsd:w: -n 'rec' -- "$@")
+	getopt_exit_code=$?
+
+	if [ $getopt_exit_code -ne 0 ]; then
+		exit 1
+	fi
+
+	eval set -- "$parsed_args"
+
+	while :; do
+		case "$1" in
+			-h ) usage ;;
+			-s ) opt_selection=true; shift ;;
+			-d ) opt_duration=true; duration="$2"; shift 2 ;;
+			-w ) opt_wait=true; waitseconds="$2"; shift 2 ;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+
+	[ "$waitseconds" -eq "$waitseconds" ] 2>/dev/null || die 'wait value must be a number'
+	[ "$duration" -eq "$duration" ] 2>/dev/null || die 'duration value must be a number'
+	[ "$waitseconds" -gt 0 ] || die 'wait value must be a positive number'
+	[ "$duration" -gt 0 ] || die 'duration value must be a positive number'
+
+	if $opt_wait; then
+		sleep "$waitseconds"
+	fi
+
+	if $opt_duration; then
+		ffmpeg_duration_flag="-t $duration"
+	fi
+
+	if $opt_selection; then
+		ffmpeg_sizpos_flags=$(slop --quiet --format="-s %wx%h -i :0.0+%x,%y") || exit 1
+	fi
+
+	filename="$(date +%Y%m%d%H%M%S).mkv"
+
+	sink=$(pactl list short sources | \
+		awk '{ print $2 }' | \
+		grep 'monitor$' | \
+		head -n1
+	)
+
+	ffmpeg \
+		   -f pulse \
+		   -ac 2 -i "$sink" \
+		   -f x11grab \
+		   -framerate $fps \
+		   $ffmpeg_sizpos_flags \
+		   $ffmpeg_duration_flag \
+		   -c:v libx264 \
+		   -crf 0 \
+		   -preset ultrafast \
+		   -y "$filename"
+}
+
+die()
+{
+	printf "rec: %s\n" "$@" >&2
+	exit 1
+}
+
+usage()
+{
+	echo usage: rec [-hs] [-d seconds] [-w seconds]
+	exit 0
+}
+
+main "$@"
