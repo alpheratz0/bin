@@ -30,9 +30,8 @@ main()
 		esac
 	done
 
-	if [ -z "$uuid" ]; then
+	test -z "$uuid" &&
 		die 'BACKUPFS_BACKUP_PARTITION_UUID not set'
-	fi
 
 	$opt_mount ||
 		$opt_unmount ||
