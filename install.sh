@@ -30,6 +30,8 @@ for f in *; do
 	echo "installing ${f}..."
 	cp "${f}" "${DESTDIR}${PREFIX}/bin"
 	chmod 755 "${DESTDIR}${PREFIX}/bin/${f}"
-	echo "installing man page for ${f}..."
-	cp "../man/${f}.1" "${DESTDIR}${MANPREFIX}/man1"
+	if test -f "../man/${f}.1"; then
+		echo "installing man page for ${f}..."
+		cp "../man/${f}.1" "${DESTDIR}${MANPREFIX}/man1"
+	fi
 done
