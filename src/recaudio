@@ -42,8 +42,10 @@ main()
 	[ -z "$audio_source" ] &&
 		die 'no source specified'
 
-	pactl list short sources | awk '{ print $2 }' | grep -qE "^$audio_source$" ||
-		die 'invalid audio source'
+	if test "$audio_source" != "default"; then
+		pactl list short sources | awk '{ print $2 }' | grep -qE "^$audio_source$" ||
+			die 'invalid audio source'
+	fi
 
 	ffmpeg -f pulse \
 		   -ac 2 -i "$audio_source" \
