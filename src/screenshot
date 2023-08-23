@@ -37,7 +37,7 @@ main()
 		temp_dir=$(mktemp -d)
 		ss=$(xscreenshot -d "$temp_dir" -p)
 		ss_name=$(basename "$ss")
-		pngcrop "$area" -i "$ss" -o "$outdir/$ss_name"
+		imgcrop "$area" -i "$ss" -o "$outdir/$ss_name"
 		notify-send 'area screenshot taken' "file name: $ss_name"
 		rm "$ss"
 		rmdir "$temp_dir"
