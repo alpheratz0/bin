@@ -40,7 +40,7 @@ main()
 	$opt_current &&
 		show_current
 
-	if [ -f /tmp/vrecord.pid ]; then
+	if [ -f /tmp/record.pid ]; then
 		stop_recording
 	else
 		start_recording
@@ -61,9 +61,7 @@ start_recording()
 {
 	start=$(date +%s)
 	recname=$(date +%Y%m%d%H%M%S)
-
-	audiodst="$HOME/.screenrec/$recname/audio.mp3"
-	videodst="$HOME/.screenrec/$recname/video.mkv"
+	filename="$HOME/.screenrec/$recname.mkv"
 
 	sink=$(pactl list short sources | \
 		awk '{ print $2 }' | \
@@ -75,25 +73,26 @@ start_recording()
 	# rwxr-xr-x for directories
 	umask 022
 
-	mkdir -p "$HOME/.screenrec/$recname"
+	mkdir -p "$HOME/.screenrec"
 
 	echo "%{B#$bgcolor}%{F#$fgcolor}   Starting  " > /tmp/record
 	polybar-msg -p "$barpid" hook rec 2
 
-	ffmpeg -f pulse -ac 2 -i "$sink" \
-		   -ab 320k -acodec libmp3lame \
-		   -y "$audiodst" 2>/dev/null>&2 &
+	ffmpeg \
+		   -f pulse \
+		   -ac 2 -i "$sink" \
+		   -f x11grab \
+		   -framerate 60 \
+		   -i :0.0 \
+		   -c:v libx264 \
+		   -crf 0 \
+		   -preset ultrafast \
+		   -y "$filename" 2>/dev/null>&2 &
 
-	echo "$!" > /tmp/vrecord.pid
-
-	ffmpeg -framerate 60 -f x11grab \
-		   -i :0.0 -c:v libx264 -crf 0 -preset ultrafast \
-		   -y "$videodst" 2>/dev/null>&2 &
-
-	echo "$!" > /tmp/arecord.pid
+	echo "$!" > /tmp/record.pid
 
 	sleep 0.5
-	while [ -f /tmp/vrecord.pid ]; do
+	while [ -f /tmp/record.pid ]; do
 		echo "%{A1:polybar-drec -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}   STOP $(ellapsed "$start")  %{A}" > /tmp/record
 		polybar-msg -p "$barpid" hook rec 2
 		sleep 1
@@ -103,11 +102,9 @@ start_recording()
 stop_recording()
 {
 	polybar-msg -p "$barpid" hook rec 1
-	/bin/kill -s INT "$(cat /tmp/vrecord.pid)"
-	/bin/kill -s INT "$(cat /tmp/arecord.pid)"
+	/bin/kill -s INT "$(cat /tmp/record.pid)"
 
-	rm -f /tmp/vrecord.pid
-	rm -f /tmp/arecord.pid
+	rm -f /tmp/record.pid
 	rm -f /tmp/record
 }
 
