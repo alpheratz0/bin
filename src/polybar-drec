@@ -125,7 +125,7 @@ show_current()
 
 die()
 {
-	printf "polybar-drec %s\n" "$@" >&2
+	printf "polybar-drec: %s\n" "$@" >&2
 	exit 1
 }
 

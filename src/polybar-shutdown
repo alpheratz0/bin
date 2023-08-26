@@ -101,7 +101,7 @@ cancel_shutdown()
 
 die()
 {
-	printf "polybar-shutdown %s\n" "$@" >&2
+	printf "polybar-shutdown: %s\n" "$@" >&2
 	exit 1
 }
 

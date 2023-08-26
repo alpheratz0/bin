@@ -224,7 +224,7 @@ like_song()
 
 die()
 {
-	printf "error: %s\n" "$@" >&2
+	printf "polybar-radio: %s\n" "$@" >&2
 	exit 1
 }
 
