@@ -33,7 +33,7 @@ opt_volume_down=false
 
 main()
 {
-	parsed_args=$(getopt -o CDudlp:h -n 'polybar-radio' -- "$@")
+	parsed_args=$(getopt -o CDudlh -n 'polybar-radio' -- "$@")
 	getopt_exit_code=$?
 
 	if [ $getopt_exit_code -ne 0 ]; then
@@ -49,7 +49,6 @@ main()
 			-u ) opt_volume_up=true; shift ;;
 			-d ) opt_volume_down=true; shift ;;
 			-l ) opt_like=true; shift ;;
-			-p ) barpid=$2; shift 2 ;;
 			-h ) usage ;;
 			-- ) shift; break ;;
 			* ) break ;;
@@ -87,7 +86,7 @@ main()
 	$opt_default &&
 		show_default
 
-	if [ -f /tmp/radio.pid ]; then
+	if [ -f "/tmp/polybar_radio_$USER.pid" ]; then
 		stop_radio
 	else
 		start_radio
@@ -107,7 +106,7 @@ get_title()
 radmsg()
 {
 	echo "$@" > /tmp/radio
-	polybar-msg -p "$barpid" hook radio 2
+	polybar-msg action "#radio.hook.1"
 }
 
 current_volume()
@@ -153,8 +152,8 @@ volume_down()
 start_radio()
 {
 	mpv --volume=60 --input-ipc-server=/tmp/radiosocket -title='polybar-radio' --no-video "$(get_radio)" 2>/dev/null | {
-		echo $! > /tmp/radio.pid
-		radmsg "%{A1:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}   Loading...  %{F-}%{B-}%{A}"
+		echo $! > "/tmp/polybar_radio_$USER.pid"
+		radmsg "%{A1:polybar-radio:}%{B#$bgcolor}%{F#$fgcolor}   Loading...  %{F-}%{B-}%{A}"
 
 		while read -r line; do
 			heart='󱢠'
@@ -172,9 +171,9 @@ start_radio()
 			grep -qF "$song" "$radfavfile" &&
 				heart='󰣐'
 
-			heartmsg="%{A1:polybar-radio -l -p $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
-			songmsg="%{A3:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
-			fullmsg="%{A5:polybar-radio -d -p $barpid:}%{A4:polybar-radio -u -p $barpid:}$songmsg%{A}%{A}"
+			heartmsg="%{A1:polybar-radio -l:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
+			songmsg="%{A3:polybar-radio:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
+			fullmsg="%{A5:polybar-radio -d:}%{A4:polybar-radio -u:}$songmsg%{A}%{A}"
 
 			radmsg "$fullmsg"
 		done
@@ -183,14 +182,14 @@ start_radio()
 
 stop_radio()
 {
-	polybar-msg -p "$barpid" hook radio 1
-	/bin/kill -s KILL "$(cat /tmp/radio.pid)"
-	rm -f /tmp/radio.pid
+	polybar-msg action "#radio.hook.0"
+	/bin/kill -s KILL "$(cat "/tmp/polybar_radio_$USER.pid")"
+	rm -f "/tmp/polybar_radio_$USER.pid"
 }
 
 show_default()
 {
-	echo "%{A1:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  󰐊 Play  %{F-}%{B-}%{A}"
+	echo "%{A1:polybar-radio:}%{B#$bgcolor}%{F#$fgcolor}  󰐊 Play  %{F-}%{B-}%{A}"
 	exit 0
 }
 
@@ -213,9 +212,9 @@ like_song()
 		echo "$song" >> "$radfavfile"
 	fi
 
-	heartmsg="%{A1:polybar-radio -l -p $barpid:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
-	songmsg="%{A3:polybar-radio -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
-	fullmsg="%{A5:polybar-radio -d -p $barpid:}%{A4:polybar-radio -u -p $barpid:}$songmsg%{A}%{A}"
+	heartmsg="%{A1:polybar-radio -l:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
+	songmsg="%{A3:polybar-radio:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
+	fullmsg="%{A5:polybar-radio -d:}%{A4:polybar-radio -u:}$songmsg%{A}%{A}"
 
 	radmsg "$fullmsg"
 
@@ -230,7 +229,7 @@ die()
 
 usage()
 {
-	echo usage: polybar-radio [-CDdhlu] [-p pid]
+	echo usage: polybar-radio [-CDdhlu]
 	exit 0
 }
 
