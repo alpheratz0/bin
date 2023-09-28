@@ -28,8 +28,8 @@ main()
 
 start_polybar()
 {
-	nohup polybar -c "$HOME/.config/polybar/config" top >/tmp/polybar_top.log 2>&1 &
-	nohup polybar -c "$HOME/.config/polybar/config" bottom >/tmp/polybar_bottom.log 2>&1 &
+	nohup polybar -c "$HOME/.config/polybar/config" top &
+	nohup polybar -c "$HOME/.config/polybar/config" bottom &
 }
 
 stop_polybar()
