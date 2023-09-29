@@ -7,230 +7,149 @@
 # https://github.com/Carbon-Bl4ck/Rofi-Beats
 #
 
+PR_THEME_BG_COLOR="FCE702"
+PR_THEME_FG_COLOR="000000"
+PR_THEME_HEART_COLOR="FF0000"
 
-# colors
-bgcolor="fce702"
-fgcolor="000000"
-htcolor="ff0000"
+PR_DATA_PATH="$XDG_DATA_HOME/polybar-radio"
+PR_HISTORY_PATH="$PR_DATA_PATH/history"
+PR_FAVS_PATH="$PR_DATA_PATH/favs"
 
+PR_RUNTIME_PATH="$XDG_RUNTIME_DIR/polybar-radio"
+PR_PID_PATH="$PR_RUNTIME_PATH/self.pid"
+PR_CURRENT_MSG_PATH="$PR_RUNTIME_PATH/message"
+PR_CURRENT_SONG_PATH="$PR_RUNTIME_PATH/song"
+PR_RADIO_SOCKET_PATH="$PR_RUNTIME_PATH/socket"
 
-datadir="$XDG_DATA_HOME/polybar-radio"
-radhistfile="$datadir/history"
-radfavfile="$datadir/favs"
-
-radios=$(printf "%s\n" 'https://play.streamafrica.net/lofiradio' \
-					   'http://stream.zeno.fm/fyn8eh3h5f8uv' \
-					   'http://stream.zeno.fm/f3wvbbqmdg8uv' \
-					   'http://stream.zeno.fm/0r0xa792kwzuv' \
-					   'https://live.radiospinner.com/lofi-hip-hop-64' \
-					   'https://media-ssl.musicradio.com/SmoothChill')
-
-opt_current=false
-opt_default=false
-opt_like=false
-opt_volume_up=false
-opt_volume_down=false
+PR_RADIOS=$(printf "%s\n" \
+	'https://play.streamafrica.net/lofiradio' \
+	'http://stream.zeno.fm/fyn8eh3h5f8uv' \
+	'http://stream.zeno.fm/f3wvbbqmdg8uv' \
+	'http://stream.zeno.fm/0r0xa792kwzuv' \
+	'https://live.radiospinner.com/lofi-hip-hop-64' \
+	'https://media-ssl.musicradio.com/SmoothChill' \
+)
 
 main()
 {
-	parsed_args=$(getopt -o CDudlh -n 'polybar-radio' -- "$@")
-	getopt_exit_code=$?
-
-	if [ $getopt_exit_code -ne 0 ]; then
-		exit 1
-	fi
-
-	eval set -- "$parsed_args"
-
-	while :; do
-		case "$1" in
-			-C ) opt_current=true; shift ;;
-			-D ) opt_default=true; shift ;;
-			-u ) opt_volume_up=true; shift ;;
-			-d ) opt_volume_down=true; shift ;;
-			-l ) opt_like=true; shift ;;
-			-h ) usage ;;
-			-- ) shift; break ;;
-			* ) break ;;
-		esac
-	done
-
-	# rw-r--r-- for files
-	# rwxr-xr-x for directories
 	umask 022
 
-	[ -d "$datadir" ] ||
-		mkdir -p "$datadir"
+	mkdir -p "$PR_DATA_PATH"
+	mkdir -p "$PR_RUNTIME_PATH"
 
-	[ -f "$radhistfile" ] ||
-		touch "$radhistfile"
+	touch "$PR_HISTORY_PATH"
+	touch "$PR_FAVS_PATH"
 
-	[ -f "$radfavfile" ] ||
-		touch "$radfavfile"
+	case "$1" in
+		msg      ) get_message;         return ;;
+		+volume  ) increase_volume +5;  return ;;
+		-volume  ) increase_volume -5;  return ;;
+		like     ) toggle_like;         return ;;
+	esac
 
-	$opt_current &&
-		show_current
+	toggle_radio_on_off
+}
 
-	$opt_volume_down && $opt_volume_up &&
-		die 'cannot increase and decrease the volume at the same time'
+get_message()
+{
+	if test -f "$PR_PID_PATH" && /bin/kill -0 "$(cat "$PR_PID_PATH")"; then
+		head -n1 "$PR_CURRENT_MSG_PATH"
+	else
+		# nothing is playing
+		echo "%{A1:polybar-radio:}%{B#$PR_THEME_BG_COLOR}%{F#$PR_THEME_FG_COLOR}  󰐊 Play  %{F-}%{B-}%{A}"
+	fi
+}
 
-	$opt_volume_down &&
-		volume_down
+set_message()
+{
+	echo "$@" > "$PR_CURRENT_MSG_PATH"
+	polybar-msg action "#radio.hook.0"
+}
 
-	$opt_volume_up &&
-		volume_up
+increase_volume()
+{
+	delta_vol=$1
+	current_vol=$(echo '{ "command": ["get_property", "volume"]  }' |
+		netcat -U "$PR_RADIO_SOCKET_PATH" | head -n1 | jq '.data' | cut -d. -f1)
+	next_vol=$((current_vol+delta_vol))
 
-	$opt_like &&
-		like_song
+	if [ "$next_vol" -gt 100 ]; then
+		next_vol=100
+	elif [ "$next_vol" -lt 0 ]; then
+		next_vol=0
+	fi
 
-	$opt_default &&
-		show_default
+	echo "{ \"command\": [\"set_property\", \"volume\", \"$next_vol\"] }" |
+		netcat -U "$PR_RADIO_SOCKET_PATH" | head -n1
+}
 
-	if [ -f "/tmp/polybar_radio_$USER.pid" ]; then
+toggle_like()
+{
+	song="$(cat "$PR_CURRENT_SONG_PATH")"
+
+	if grep -qF "$song" "$PR_FAVS_PATH"; then
+		heart='󱢠'
+		newlist=$(grep -v -F "$song" "$PR_FAVS_PATH")
+		echo "$newlist" > "$PR_FAVS_PATH"
+	else
+		heart='󰣐'
+		echo "$song" >> "$PR_FAVS_PATH"
+	fi
+
+	heartmsg="%{A1:polybar-radio like:}%{F#$PR_THEME_HEART_COLOR}%{T2}$heart%{T-}  %{A}"
+	songmsg="%{A3:polybar-radio:}%{B#$PR_THEME_BG_COLOR}%{F#$PR_THEME_FG_COLOR}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
+
+	set_message "%{A5:polybar-radio -volume:}%{A4:polybar-radio +volume:}$songmsg%{A}%{A}"
+}
+
+toggle_radio_on_off()
+{
+	if test -f "$PR_PID_PATH" && /bin/kill -0 "$(cat "$PR_PID_PATH")"; then
 		stop_radio
 	else
 		start_radio
 	fi
 }
 
-get_radio()
-{
-	printf "%s" "$radios" | shuf -n1
-}
-
-get_title()
-{
-	echo "$@" | grep -E '^.?icy-title' | cut -d ':' -f2- | xargs echo
-}
-
-radmsg()
-{
-	echo "$@" > /tmp/radio
-	polybar-msg action "#radio.hook.1"
-}
-
-current_volume()
-{
-	echo '{ "command": ["get_property", "volume"]  }' |
-		netcat -U /tmp/radiosocket |
-		head -n1 |
-		jq '.data'
-}
-
-volume_up()
-{
-	volume=$(current_volume)
-	volume=$((volume+5))
-
-	if [ "$volume" -gt 100 ]; then
-		volume=100
-	fi
-
-	echo "{ \"command\": [\"set_property\", \"volume\", \"$volume\"] }" |
-		netcat -U /tmp/radiosocket |
-		head -n1
-
-	exit
-}
-
-volume_down()
-{
-	volume=$(current_volume)
-	volume=$((volume-5))
-
-	if [ "$volume" -lt 0 ]; then
-		volume=0
-	fi
-
-	echo "{ \"command\": [\"set_property\", \"volume\", \"$volume\"] }" |
-		netcat -U /tmp/radiosocket |
-		head -n1
-
-	exit
-}
-
 start_radio()
 {
-	mpv --volume=60 --input-ipc-server=/tmp/radiosocket -title='polybar-radio' --no-video "$(get_radio)" 2>/dev/null | {
-		echo $! > "/tmp/polybar_radio_$USER.pid"
-		radmsg "%{A1:polybar-radio:}%{B#$bgcolor}%{F#$fgcolor}   Loading...  %{F-}%{B-}%{A}"
+	radio_url="$(printf "%s" "$PR_RADIOS" | shuf -n1)"
+
+	mpv --volume=60 \
+		--input-ipc-server="${PR_RADIO_SOCKET_PATH}" \
+		-title='polybar-radio' --no-video "$radio_url" 2>/dev/null | {
+
+		echo $! > "${PR_PID_PATH}"
+
+		set_message "%{A1:polybar-radio:}%{B#$PR_THEME_BG_COLOR}%{F#$PR_THEME_FG_COLOR}   Loading...  %{F-}%{B-}%{A}"
 
 		while read -r line; do
 			heart='󱢠'
 			timestamp=$(date +'%Y %b %d %H:%M')
-			song=$(get_title "$line")
+			song=$(echo "$line" | grep -E '^.?icy-title' | cut -d ':' -f2-)
 
-			[ -z "$song" ] &&
-				continue
+			[ -z "$song" ] && continue
 
-			echo "$song" > /tmp/radiosong
+			echo "$song" > "${PR_CURRENT_SONG_PATH}"
 
-			tail -n5 "$radhistfile" | grep -q "$song" ||
-				echo "$timestamp ➜  $song" >> "$radhistfile"
+			tail -n5 "$PR_HISTORY_PATH" | grep -q "$song" ||
+				echo "$timestamp ➜  $song" >> "$PR_HISTORY_PATH"
 
-			grep -qF "$song" "$radfavfile" &&
+			grep -qF "$song" "$PR_FAVS_PATH" &&
 				heart='󰣐'
 
-			heartmsg="%{A1:polybar-radio -l:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
-			songmsg="%{A3:polybar-radio:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
-			fullmsg="%{A5:polybar-radio -d:}%{A4:polybar-radio -u:}$songmsg%{A}%{A}"
+			heartmsg="%{A1:polybar-radio like:}%{F#$PR_THEME_HEART_COLOR}%{T2}$heart%{T-}  %{A}"
+			songmsg="%{A3:polybar-radio:}%{B#$PR_THEME_BG_COLOR}%{F#$PR_THEME_FG_COLOR}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
 
-			radmsg "$fullmsg"
+			set_message "%{A5:polybar-radio -volume:}%{A4:polybar-radio +volume:}$songmsg%{A}%{A}"
 		done
 	} &
 }
 
 stop_radio()
 {
+	/bin/kill -s KILL "$(cat "${PR_PID_PATH}")"
 	polybar-msg action "#radio.hook.0"
-	/bin/kill -s KILL "$(cat "/tmp/polybar_radio_$USER.pid")"
-	rm -f "/tmp/polybar_radio_$USER.pid"
-}
-
-show_default()
-{
-	echo "%{A1:polybar-radio:}%{B#$bgcolor}%{F#$fgcolor}  󰐊 Play  %{F-}%{B-}%{A}"
-	exit 0
-}
-
-show_current()
-{
-	head -n1 /tmp/radio
-	exit 0
-}
-
-like_song()
-{
-	song="$(cat /tmp/radiosong)"
-
-	if grep -qF "$song" "$radfavfile"; then
-		heart='󱢠'
-		newlist=$(grep -v -F "$song" "$radfavfile")
-		echo "$newlist" > "$radfavfile"
-	else
-		heart='󰣐'
-		echo "$song" >> "$radfavfile"
-	fi
-
-	heartmsg="%{A1:polybar-radio -l:}%{F#$htcolor}%{T2}$heart%{T-}  %{A}"
-	songmsg="%{A3:polybar-radio:}%{B#$bgcolor}%{F#$fgcolor}  %{T2}󰝚%{T-}  $song  $heartmsg%{A}"
-	fullmsg="%{A5:polybar-radio -d:}%{A4:polybar-radio -u:}$songmsg%{A}%{A}"
-
-	radmsg "$fullmsg"
-
-	exit 0
-}
-
-die()
-{
-	printf "polybar-radio: %s\n" "$@" >&2
-	exit 1
-}
-
-usage()
-{
-	echo usage: polybar-radio [-CDdhlu]
-	exit 0
 }
 
 main "$@"
