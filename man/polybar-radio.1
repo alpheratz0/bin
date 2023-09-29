@@ -2,24 +2,18 @@
 .Dt POLYBAR-RADIO 1
 .Sh NAME
 .Nm polybar-radio
-.Nd radio player ipc for polybar
+.Nd radio player ipc for polybar, call this script without any option to stop/start the radio.
 .Sh SYNOPSIS
 .Nm
-.Op Fl CDdhlu
+.Op -volume|+volume|msg|like
 .Sh OPTIONS
 .Bl -tag -width indent
-.It Fl C
-show current message
-.It Fl D
-show default message
-.It Fl d
-decrease the volume of the mpv player
-.It Fl h
-show usage
-.It Fl l
-toggle current song like status
-.It Fl u
-increase the volume of the mpv player
+.It msg
+get current message
+.It +volume/-volume
+increase/decrease volume
+.It like
+toggle like
 .El
 .Sh AUTHORS
 .An alpheratz0 Aq Mt alpheratz99@protonmail.com
