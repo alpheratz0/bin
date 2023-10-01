@@ -5,110 +5,68 @@
 # ipc for polybar
 #
 
-# colors
-bgcolor='ff0000'
-fgcolor='ffffff'
+PS_THEME_BG_COLOR="FF0000"
+PS_THEME_FG_COLOR="FFFFFF"
 
-opt_default=false
-opt_current=false
+PS_RUNTIME_PATH="$XDG_RUNTIME_DIR/polybar-shutdown"
+PS_PID_PATH="$PS_RUNTIME_PATH/self.pid"
+PS_CURRENT_MSG_PATH="$PS_RUNTIME_PATH/message"
 
 main()
 {
-	parsed_args=$(getopt -o p:DCc:h -n 'polybar-shutdown' -- "$@")
-	getopt_exit_code=$?
+	umask 022
+	mkdir -p "$PS_RUNTIME_PATH"
 
-	if [ $getopt_exit_code -ne 0 ]; then
-		exit 1
+	case "$1" in
+		msg ) get_message; return ;;
+	esac
+
+	toggle_shutdown_on_off
+}
+
+get_message()
+{
+	if test -f "$PS_PID_PATH" && /bin/kill -0 "$(cat "$PS_PID_PATH")"; then
+		head -n1 "$PS_CURRENT_MSG_PATH"
+	else
+		echo "%{A1:polybar-shutdown:}%{B#$PS_THEME_BG_COLOR}%{F#$PS_THEME_FG_COLOR}  󰐥  %{A}"
 	fi
+}
 
-	eval set -- "$parsed_args"
+set_message()
+{
+	echo "$@" > "$PS_CURRENT_MSG_PATH"
+	polybar-msg action "#shutdown.hook.0"
+}
 
-	while :; do
-		case "$1" in
-			-C ) opt_current=true; shift ;;
-			-D ) opt_default=true; shift ;;
-			-p ) barpid=$2; shift 2 ;;
-			-c ) countdown=$2; shift 2 ;;
-			-h ) usage ;;
-			-- ) shift; break ;;
-			* ) break ;;
-		esac
-	done
-
-	$opt_default &&
-		show_default
-
-	$opt_current &&
-		show_current
-
-	[ -z "$countdown" ] &&
-		countdown=10
-
-	[ "$countdown" -eq "$countdown" ] 2>/dev/null ||
-		die 'countdown value must be a number'
-
-	[ "$countdown" -gt 0 ] ||
-		die 'countdown value must be a positive number'
-
-	if [ -f /tmp/shutdown.pid ]; then
-		cancel_shutdown
+toggle_shutdown_on_off()
+{
+	if test -f "$PS_PID_PATH" && /bin/kill -0 "$(cat "$PS_PID_PATH")"; then
+		stop_shutdown
 	else
 		start_shutdown
 	fi
 }
 
-show_default()
-{
-	echo "%{A1:polybar-shutdown -c 10 -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  󰐥  %{A}"
-	exit 0
-}
-
-show_current()
-{
-	cat /tmp/shutdown
-	exit 0
-}
-
 start_shutdown()
 {
-	# to prevent misclicks
-	notify-send 'warning' 'the computer will shutdown in 10 seconds'
+	notify-send 'Warning' 'The computer will shutdown after 10 seconds.'
 
-	# rw-r--r-- for files
-	# rwxr-xr-x for directories
-	umask 022
+	echo $$ > "$PS_PID_PATH"
 
-	echo $$ > /tmp/shutdown.pid
-
-	for i in $(seq $countdown -1 1); do
-		echo "%{A1:polybar-shutdown -c 10 -p $barpid:}%{B#$bgcolor}%{F#$fgcolor}  󰔛 ${i}s  %{A}" > /tmp/shutdown
-		polybar-msg -p "$barpid" hook shutdown 2
+	for i in $(seq 10 -1 1); do
+		set_message "%{A1:polybar-shutdown:}%{B#$PS_THEME_BG_COLOR}%{F#$PS_THEME_FG_COLOR}  󰔛 ${i}s  %{A}"
 		sleep 1
 	done
 
-	echo "%{B#$bgcolor}%{F#$fgcolor}  ...  " > /tmp/shutdown
-	polybar-msg -p "$barpid" hook shutdown 2
-
+	set_message "%{B#$PS_THEME_BG_COLOR}%{F#$PS_THEME_FG_COLOR}  ...  "
 	systemctl poweroff
 }
 
-cancel_shutdown()
+stop_shutdown()
 {
-	/bin/kill -s KILL "$(cat /tmp/shutdown.pid)"
-	rm /tmp/shutdown.pid
-	polybar-msg -p "$barpid" hook shutdown 1
-}
-
-die()
-{
-	printf "polybar-shutdown: %s\n" "$@" >&2
-	exit 1
-}
-
-usage()
-{
-	echo usage: polybar-shutdown [-DCh] [-p pid] [-c seconds]
-	exit 0
+	/bin/kill -s KILL "$(cat "${PS_PID_PATH}")"
+	polybar-msg action "#shutdown.hook.0"
 }
 
 main "$@"
