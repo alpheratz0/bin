@@ -1,0 +1,3 @@
+#!/bin/sh
+
+ffmpeg -hide_banner -ss 00.500 -to 00.600 -i "$1" -vf cropdetect -f null - 2>&1 | rg -o 'Parsed.*' | rg --color=never -o 'crop=.*'

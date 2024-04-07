@@ -1,0 +1,5 @@
+#!/bin/sh
+
+rg '\t$' -g '!COPYING'
+rg '^ ' -g '!COPYING'
+rg ' $' -g '!COPYING'

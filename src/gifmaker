@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# font1: /usr/share/fonts/TTF/OpenSans-Regular.ttf
+# font2: /usr/share/fonts/ttf-linux-libertine/LinLibertine_M.otf
+# font3: /usr/share/fonts/noto/NotoSansMono-Bold.ttf
+
+scale=640
+video_path=$1
+from=$2
+to=$3
+text=$4
+font='/usr/share/fonts/TTF/OpenSans-Regular.ttf'
+output_path=aurora_$(date +%Y%m%d%H%M%S).gif
+# text_flags="drawtext=fontfile=$font:text='$text':fontcolor=white:fontsize=35:x=(w-text_w)/2:y=(h-text_h-20):borderw=2:bordercolor=black"
+text_flags="drawtext=fontfile=$font:text='$text':fontcolor=white:fontsize=40:x=(w-text_w)/2:y=(h-text_h-20):borderw=3:bordercolor=black"
+
+test -z "$video_path" && exit 1
+
+if test -z "$from"; then
+	from="00:00:00"
+fi
+
+if test -z "$to"; then
+	to="02:00:00"
+fi
+
+if test -z "$text"; then
+	ffmpeg -hide_banner -y -ss $from -to $to -i "$video_path" \
+		-filter_complex "fps=25,scale=$scale:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer" \
+		$output_path
+else
+	ffmpeg -hide_banner -y -ss $from -to $to -i "$video_path" \
+		-filter_complex "fps=25,scale=$scale:-1:flags=lanczos,$text_flags,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer" \
+		$output_path
+fi

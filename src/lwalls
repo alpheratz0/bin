@@ -1,0 +1,4 @@
+#!/bin/sh
+
+clear;
+n_wallpapers=$(ls | wc -l); for i in $(seq 1 $n_wallpapers); do feh --no-fehbg --bg-max $(ls | sed -n ${i}p); read; clear; done;
