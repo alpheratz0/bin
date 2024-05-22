@@ -66,6 +66,7 @@ start_recording()
 	sink=$(pactl list short sources | \
 		awk '{ print $2 }' | \
 		grep 'monitor$' | \
+		grep -v 'pci' | \
 		head -n1
 	)
 
