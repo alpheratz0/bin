@@ -75,6 +75,7 @@ main()
 		   -c:v libx264 \
 		   -crf 0 \
 		   -preset ultrafast \
+		   -nostdin \
 		   -y "$filename"
 }
 
