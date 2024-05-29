@@ -5,4 +5,4 @@ to=$3
 input=$1
 ext=$(echo "$input" | rev | cut -d. -f1 | rev)
 
-ffmpeg -copyts -ss "$from" -to "$to" -i "$input" -map 0 -c copy "out.${ext}"
+ffmpeg -ss "$from" -to "$to" -i "$input" -map 0 -c copy "out.${ext}"
