@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if test "$1" = "-mount"; then
+	mkdir -p ~/mtp-mount;
+	aft-mtp-mount ~/mtp-mount || rmdir ~/mtp-mount;
+elif test "$1" = "-unmount"; then
+	fusermount -u ~/mtp-mount;
+	rmdir ~/mtp-mount;
+fi;
