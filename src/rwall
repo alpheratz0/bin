@@ -1,0 +1,9 @@
+#!/bin/sh
+
+wallpaper=$(find ~/.config/wallpapers -maxdepth 1 -type f -print0 | shuf -zn1);
+
+if exiftool -comment "$wallpaper" | grep -qF 'no-zoom'; then
+	feh --no-fehbg --bg-max "$wallpaper"
+else
+	feh --no-fehbg --bg-fill "$wallpaper"
+fi;
