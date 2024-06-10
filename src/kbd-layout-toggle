@@ -1,0 +1,9 @@
+#!/bin/sh
+
+current_layout=$(setxkbmap -query | grep layout | rev | cut -d' ' -f1 | rev)
+
+test "$current_layout" = "$1" && next_layout="$2" || next_layout="$1"
+
+setxkbmap "$next_layout"
+
+notify-send "keyboard layout toggle" "$next_layout"
