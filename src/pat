@@ -1,0 +1,5 @@
+#!/bin/sh
+
+gtts-cli --lang no "$*" | \
+	tee "$(echo "$*" | tr '[:upper:] ' '[:lower:]_').mp3" | \
+		mpv --really-quiet -
