@@ -1,3 +1,13 @@
 #!/bin/sh
 
-trans -brief :no "$*" | tee /dev/stderr | gtts-cli --lang no --slow -f - | mpv --really-quiet -
+gtts_cli_extra_flags=""
+
+if test "$1" = "-slow"; then
+	gtts_cli_extra_flags="--slow"
+	shift
+fi
+
+trans -brief :no "$*" | \
+	tee /dev/stderr | \
+		gtts-cli --lang no $gtts_cli_extra_flags -f - | \
+			mpv --really-quiet -
