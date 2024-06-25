@@ -1,0 +1,3 @@
+#!/bin/sh
+
+trans -brief :no "$@" | tee /dev/stderr | gtts-cli --lang no --slow -f - | mpv --really-quiet -
