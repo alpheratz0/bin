@@ -1,3 +1,8 @@
 #!/bin/sh
 
-ffmpeg -i "$1" -filter:v "$2" out2.webm
+input=$1
+ext=$(echo "$input" | rev | cut -d. -f1 | rev)
+crop_filter=$2
+output="out_crop_$(echo "$crop_filter" | cut -d '=' -f2 | tr ':' '_').${ext}"
+
+ffmpeg -i "$input" -filter:v "$crop_filter" "$output"
