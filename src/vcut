@@ -4,5 +4,6 @@ from=$2
 to=$3
 input=$1
 ext=$(echo "$input" | rev | cut -d. -f1 | rev)
+output="out_$(echo "$from" | cut -d. -f1 | tr ':.' '_')_to_$(echo "$to" | cut -d. -f1 | tr ':.' '_').${ext}"
 
-ffmpeg -ss "$from" -to "$to" -i "$input" -map 0 -c copy "out.${ext}"
+ffmpeg -ss "$from" -to "$to" -i "$input" -map 0 -c copy "${output}"
