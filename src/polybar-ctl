@@ -29,7 +29,6 @@ main()
 start_polybar()
 {
 	nohup polybar -c "$HOME/.config/polybar/config" top &
-	nohup polybar -c "$HOME/.config/polybar/config" bottom &
 }
 
 stop_polybar()
