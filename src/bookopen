@@ -27,8 +27,10 @@ main()
 	test -d "$library_dir" ||
 		die "$library_dir: not a directory"
 
-	books=$(find "$library_dir" -maxdepth 1 -type f |
-		rev | cut -d '/' -f1 | rev | sort)
+	path_len=$(($(realpath "$library_dir" | wc -c) + 1))
+
+	books=$(find "$library_dir" -type f -iname '*.pdf' \
+		-exec sh -c "echo '{}' | tail -c +${path_len}" \;)
 
 	book=$(echo "$books" | rofi -dmenu -i -p 'book')
 
