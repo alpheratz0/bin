@@ -44,7 +44,7 @@ main()
 		exit 0
 	fi
 
-	ss_name=$(basename "$(xscreenshot -c -d "$outdir" -p)")
+	ss_name=$(basename "$(xscreenshot -d "$outdir" -p)")
 	notify-send 'screenshot taken' "file name: $ss_name"
 }
 
