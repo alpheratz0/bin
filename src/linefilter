@@ -1,0 +1,25 @@
+#!/bin/zsh
+
+filename="$1"
+touch saved not_saved;
+i=$(($(wc --total=only -l saved not_saved) + 1))
+
+function read_char() {
+	stty -icanon -echo;
+	eval "$1=\$(dd bs=1 count=1 2>/dev/null)";
+	stty icanon echo;
+};
+
+while :; do
+	clear;
+	str="$(head -n"$i" "$filename"| tail -n1)";
+	echo; echo; echo;
+	echo "$str" | fold -w 80 -s;
+	read_char action;
+	if test "$action" = " "; then
+		echo -E "$str" >> saved;
+	else
+		echo -E "$str" >> not_saved;
+	fi;
+	i=$((i+1));
+done;
