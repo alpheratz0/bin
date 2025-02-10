@@ -1,0 +1,12 @@
+#!/bin/sh
+
+mpv --no-osc \
+	--profile=low-latency \
+	--untimed \
+	--no-cache \
+	--vd-lavc-fast \
+	--vf="hflip,crop=ih*4/3:ih" \
+	--no-border \
+	--geometry=-1:-1 \
+	--autofit=450 \
+	--title=mpvcam /dev/video0
