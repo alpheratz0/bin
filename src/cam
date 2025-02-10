@@ -7,6 +7,6 @@ mpv --no-osc \
 	--vd-lavc-fast \
 	--vf="hflip,crop=ih*4/3:ih" \
 	--no-border \
-	--geometry=-1:-1 \
+	--geometry=1470:750 \
 	--autofit=450 \
 	--title=mpvcam /dev/video0
