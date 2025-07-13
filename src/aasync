@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+
+require 'json'
+require 'open3'
+require 'set'
+
+RESET  = "\e[0m"
+GREEN  = "\e[32m"
+YELLOW = "\e[33m"
+CYAN   = "\e[36m"
+
+playlists = {
+  "Full Lives"         => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhv0CSwKBTVaHixHVd90Q8bI",
+  "Live Sessions"      => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhukI6WVF3QpjrSjIUFe093f",
+  "Interviews"         => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhs3be6S79IUgG4fnbWAH89Q",
+  "Livestreams"        => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhvZWSv4d3ubEpH0YBneijP8",
+  "Live Songs 2014-15" => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhtE2a1h2OBRuYMtPSHYtcwk",
+  "Live Songs 2016-17" => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhtNvgXHWxena9_HOUepxnhF",
+  "Live Songs 2018-19" => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhv_rByB9955TI5aqUMNlkGl",
+  "Live Songs 2020-21" => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhvAPSzaBioQodU1vDmoTUzu",
+  "Live Songs 2022"    => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhts0YYQl5fiUYAGw3VplT6C",
+  "Live Songs 2023"    => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhvlRkwGNl25BYiJl-LPS9Jw",
+  "Live Songs 2024"    => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhswRMRKNmXm16VPVPPr7o2T",
+  "Live Songs 2025"    => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhudXEhMd0fxtDVkysjcFCLo"
+}
+
+archive_path = File.expand_path("~/.config/yt-dlp/archive")
+downloaded_ids = if File.exist?(archive_path)
+  File.readlines(archive_path)
+      .grep(/youtube/)
+      .map { |line| line.split[1] }
+      .to_set
+else
+  Set.new
+end
+
+playlists.each do |name, url|
+  Open3.popen3("yt-dlp -j --no-download-archive --flat-playlist \"#{url}\"") do |stdin, stdout, stderr, wait_thr|
+    stdout.each_line do |line|
+      begin
+        data = JSON.parse(line)
+        video_id = data["id"]
+        title = data["title"]
+        next if title == "[Private video]" || title == "[Deleted video]"
+        unless downloaded_ids.include?(video_id)
+          puts "#{GREEN}#{name} #{YELLOW}#{video_id}#{RESET} #{CYAN}#{title}#{RESET}"
+        end
+      rescue JSON::ParserError => e
+        warn "#{e.message}"
+      end
+    end
+  end
+end
