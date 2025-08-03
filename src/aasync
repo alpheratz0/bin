@@ -35,6 +35,8 @@ else
   Set.new
 end
 
+printed_ids = Set.new
+
 playlists.each do |name, url|
   Open3.popen3("yt-dlp -j --no-download-archive --flat-playlist \"#{url}\"") do |stdin, stdout, stderr, wait_thr|
     stdout.each_line do |line|
@@ -42,11 +44,14 @@ playlists.each do |name, url|
         data = JSON.parse(line)
         video_id = data["id"]
         title = data["title"]
+
         next if title == "[Private video]" || title == "[Deleted video]" # skip deleted & private videos
         next if title =~ /\b(reaction|reacts?)\b/i # skip reaction videos
-        unless downloaded_ids.include?(video_id)
-          puts "#{GREEN}#{name} #{YELLOW}#{video_id}#{RESET} #{CYAN}#{title}#{RESET}"
-        end
+        next if downloaded_ids.include?(video_id)
+        next if printed_ids.include?(video_id)
+
+        puts "#{GREEN}#{name} #{YELLOW}#{video_id}#{RESET} #{CYAN}#{title}#{RESET}"
+        printed_ids << video_id
       rescue JSON::ParserError => e
         warn "#{e.message}"
       end
