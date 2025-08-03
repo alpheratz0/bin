@@ -21,7 +21,8 @@ playlists = {
   "Live Songs 2022"    => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhts0YYQl5fiUYAGw3VplT6C",
   "Live Songs 2023"    => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhvlRkwGNl25BYiJl-LPS9Jw",
   "Live Songs 2024"    => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhswRMRKNmXm16VPVPPr7o2T",
-  "Live Songs 2025"    => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhudXEhMd0fxtDVkysjcFCLo"
+  "Live Songs 2025"    => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhudXEhMd0fxtDVkysjcFCLo",
+  "New Videos"         => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhvy8fE_gHNSfZkDhAa3B-yt"
 }
 
 archive_path = File.expand_path("~/.config/yt-dlp/archive")
