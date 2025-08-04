@@ -9,6 +9,9 @@ GREEN  = "\e[32m"
 YELLOW = "\e[33m"
 CYAN   = "\e[36m"
 
+skip_keywords = ARGV.map(&:downcase)
+skip_regex = skip_keywords.empty? ? nil : Regexp.union(skip_keywords.map { |kw| /\b#{Regexp.escape(kw)}\b/i })
+
 playlists = {
   "Full Lives"         => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhv0CSwKBTVaHixHVd90Q8bI",
   "Live Sessions"      => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhukI6WVF3QpjrSjIUFe093f",
@@ -47,6 +50,7 @@ playlists.each do |name, url|
 
         next if title == "[Private video]" || title == "[Deleted video]" # skip deleted & private videos
         next if title =~ /\b(reaction|reacts?)\b/i # skip reaction videos
+        next if skip_regex && title =~ skip_regex # skip videos based on args
         next if downloaded_ids.include?(video_id)
         next if printed_ids.include?(video_id)
 
