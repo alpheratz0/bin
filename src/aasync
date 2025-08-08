@@ -28,6 +28,15 @@ playlists = {
   "New Videos"         => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhvy8fE_gHNSfZkDhAa3B-yt"
 }
 
+new_videos_exclude = Regexp.union(
+  /\bbbc\b/i,
+  /\bvocals?\sonly\b/i,
+  /\binstrument(al)?\sonly\b/i,
+  /\bfirst\stime\shearing\b/i,
+  /\bfirst\slisten\b/i,
+  /\bfirst\stime\slistening\b/i
+)
+
 archive_path = File.expand_path("~/.config/yt-dlp/archive")
 downloaded_ids = if File.exist?(archive_path)
   File.readlines(archive_path)
@@ -48,6 +57,7 @@ playlists.each do |name, url|
         video_id = data["id"]
         title = data["title"]
 
+        next if name == "New Videos" && title =~ new_videos_exclude
         next if title == "[Private video]" || title == "[Deleted video]" # skip deleted & private videos
         next if title =~ /\b(reaction|reacts?)\b/i # skip reaction videos
         next if skip_regex && title =~ skip_regex # skip videos based on args
