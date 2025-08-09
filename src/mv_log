@@ -1,0 +1,33 @@
+#!/bin/bash
+
+alias mv='yes Not moved | head -n10; echo >/dev/null'
+
+m() {
+	local cwd
+
+	cwd="$(pwd)"
+
+	if command mv "$@"; then
+		if [[ "$cwd" == /back || "$cwd" == /back/* || "$cwd" == /mnt || "$cwd" == /mnt/* ]]; then
+			local quoted_args=()
+			for arg in "$@"; do
+				if [[ "$arg" == /back/* ]]; then
+					arg="/mega${arg#/back}"
+				elif [[ "$arg" == /mnt/* ]]; then
+					arg="/mega${arg#/mnt}"
+				fi
+				quoted_args+=("$(printf '%q' "$arg")")
+			done
+
+			local mapped_cwd="$cwd"
+			[[ "$mapped_cwd" == /back* ]] && mapped_cwd="/mega${mapped_cwd#/back}"
+			[[ "$mapped_cwd" == /mnt* ]] && mapped_cwd="/mega${mapped_cwd#/mnt}"
+
+			echo "cd $(printf '%q' "$mapped_cwd") && mv ${quoted_args[*]}" >> ~/.mv_log
+		fi
+	fi
+}
+
+if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
+	m $@
+fi
