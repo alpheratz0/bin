@@ -1,0 +1,19 @@
+#!/bin/sh
+
+filename="$1"
+language="norwegian"
+
+if test $# -eq 2; then
+	language="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+	filename="$2"
+fi
+
+base="$(echo "$filename" | rev | cut -d . -f2- | rev)"
+
+if test "$language" = "norwegian"; then
+	whisper-cli -m models/ggml-medium-q5_0.bin -f "$filename" -osrt -t 8 -l no -of "$base.no"
+	whisper-cli -m models/ggml-medium-q5_0.bin -f "$filename" -osrt -t 8 -tr -l en -of "$base.en"
+else
+	whisper-cli -m models/ggml-medium-q5_0.bin -f "$filename" -osrt -t 8 -l en -of "$base.en"
+	whisper-cli -m models/ggml-medium-q5_0.bin -f "$filename" -osrt -t 8 -tr -l no -of "$base.no"
+fi
