@@ -13,6 +13,7 @@ skip_keywords = ARGV.map(&:downcase)
 skip_regex = skip_keywords.empty? ? nil : Regexp.union(skip_keywords.map { |kw| /\b#{Regexp.escape(kw)}\b/i })
 
 playlists = {
+  "Reactions"          => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhvexXtqA1BB5pzZ_iiTBvrU",
   "Full Lives"         => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhv0CSwKBTVaHixHVd90Q8bI",
   "Live Sessions"      => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhukI6WVF3QpjrSjIUFe093f",
   "Interviews"         => "https://www.youtube.com/playlist?list=PLtgoOJuVpwhs3be6S79IUgG4fnbWAH89Q",
@@ -34,7 +35,8 @@ new_videos_exclude = Regexp.union(
   /\binstrument(al)?\sonly\b/i,
   /\bfirst\stime\shearing\b/i,
   /\bfirst\slisten\b/i,
-  /\bfirst\stime\slistening\b/i
+  /\bfirst\stime\slistening\b/i,
+  /\banalysing\sstructure\b/i
 )
 
 archive_path = File.expand_path("~/.config/yt-dlp/archive")
@@ -64,8 +66,11 @@ playlists.each do |name, url|
         next if downloaded_ids.include?(video_id)
         next if printed_ids.include?(video_id)
 
-        puts "#{GREEN}#{name} #{YELLOW}#{video_id}#{RESET} #{CYAN}#{title}#{RESET}"
         printed_ids << video_id
+
+        next if name == "Reactions" # we add reactions to the list but dont print them
+
+        puts "#{GREEN}#{name} #{YELLOW}#{video_id}#{RESET} #{CYAN}#{title}#{RESET}"
       rescue JSON::ParserError => e
         warn "#{e.message}"
       end
