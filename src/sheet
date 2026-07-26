@@ -1,0 +1,31 @@
+#!/bin/bash
+
+FILE="$1"
+RES=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height \
+  -of csv=p=0:s=x "$FILE")
+
+WIDTH="$(echo "$RES" | rg -o '\d+' | head -n1)"
+HEIGHT="$(echo "$RES" | rg -o '\d+' | head -n2 | tail -n1)"
+
+if (( HEIGHT < WIDTH )); then
+  C=3
+  R=4
+else
+  C=3
+  R=1
+fi
+
+# mtn "$FILE" -O thumbs -o _sheet.jpg -g 2 -F 000000:24 -c $C -r $R -b 5 -w 2048 -T "Path: $(readlink -f "$FILE")" -N _meta.txt
+
+# mtn "$FILE" -L 4:2 -O thumbs -o _sheet.jpg -g 5 -F 000000:18 -c $C -r $R -b 5 -w 2048 -N _meta.txt
+# mtn "$FILE" -k 222222 -L 4:1 -O thumbs -o _sheet.jpg -g 3 -F EEEEEE:12 -c $C -r $R -b 5 -w 1024 -N _meta.txt
+# mtn "$FILE" -O thumbs -o _sheet.jpg -g 5 -F 000000:18 -c $C -r $R -b 5 -w 2048 -N _meta.txt
+# mtn "$FILE" -O thumbs -o _sheet.jpg -g 0 -F 000000:18 -c $C -r $R -b 5 -w 2048 -N _meta.txt
+# mtn "$FILE" -O thumbs -o _sheet.jpg -g 0 -c $C -r $R -b 5 -w 1024 -N _meta.txt
+
+# mtn "$FILE" -k 222222 -O thumbs -o _sheet.jpg -F dddddd:16 -c $C -r $R -b 5 -w 1920
+# mtn "$FILE" -k 444444 -O thumbs -o .jpg -F dddddd:9 -c $C -r $R -b 5 -w 1024 -T "Path: $(readlink -f "$FILE")" -N .info
+# mtn "$FILE" -k 444444 -O thumbs -o .jpg -f /home/alpheratz/.local/share/fonts/TerminessNerdFont-Regular.ttf -F dddddd:30 -c $C -r $R -b 5 -w 2048 -T "Path: $(readlink -f "$FILE")" -N .info
+# mtn "$FILE" -k 444444 -O thumbs -o .jpg -F dddddd:18 -c $C -r $R -b 5 -w 2048 -T "Path: $(readlink -f "$FILE")" -N .info
+# mtn "$FILE" -O thumbs -o .jpg -F 000000:12 -c $C -r $R -b 5 -w 1024 -T "Path: $(readlink -f "$FILE")" -N .info
+mtn "$FILE" -O thumbs -o .jpg -g 3 -f /home/alpheratz/.local/share/fonts/TerminessNerdFont-Regular.ttf -F 000000:12 -c $C -r $R -b 5 -w 1024 -T "Path: $(readlink -f "$FILE")" -N .info
