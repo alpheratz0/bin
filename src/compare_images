@@ -1,0 +1,7 @@
+#!/bin/sh
+
+dir="$(mktemp -d)"
+
+compare -metric RMSE "$1" "$2" "$dir/dif.png"
+
+feh "$1" "$2" "$dir/dif.png"
