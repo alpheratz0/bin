@@ -1,0 +1,10 @@
+#!/bin/sh
+
+backupfs -m
+feh --no-fehbg --bg-max ~/.config/wallpapers/0266.jpg
+tmux kill-window -t 10
+tmux move-window -s 0 -t 10
+tmux new-window -n aurora -c /back/music/aurora/albums
+tmux new-window -n norwegian -c /back/languages/norwegian
+tmux new-window -n back -c /back
+tmux kill-window -t 10
