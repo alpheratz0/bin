@@ -36,7 +36,8 @@ new_videos_exclude = Regexp.union(
   /\bfirst\stime\shearing\b/i,
   /\bfirst\slisten\b/i,
   /\bfirst\stime\slistening\b/i,
-  /\banalysing\sstructure\b/i
+  /\banalysing\sstructure\b/i,
+  /\bharmony\sanalysis\b/i
 )
 
 archive_path = File.expand_path("~/.config/yt-dlp/archive")
